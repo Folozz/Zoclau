@@ -1,0 +1,6 @@
+node_modules/
+build/
+*.xpi
+.env.local
+
+_tmp*

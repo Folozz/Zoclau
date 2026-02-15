@@ -1,0 +1,21 @@
+﻿{
+    "manifest_version": 2,
+    "name": "Zoclau",
+    "version": "0.1.2",
+    "description": "Embeds Claude Code as a research collaborator in Zotero.",
+    "author": "Zoclau",
+    "homepage_url": "https://github.com/zeclau",
+    "icons": {
+        "48": "content/icons/zoclau-48.png",
+        "96": "content/icons/zoclau-96.png"
+    },
+    "applications": {
+        "zotero": {
+            "id": "zeclau@zotero-plugin",
+            "update_url": "https://raw.githubusercontent.com/zeclau/zeclau/main/update.json",
+            "strict_min_version": "6.999",
+            "strict_max_version": "8.*"
+        }
+    }
+}
+

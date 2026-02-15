@@ -1,0 +1,262 @@
+﻿<vbox id="zotero-prefpane-zoclau"
+      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      flex="1">
+  <script src="chrome://zotero/content/include.js"/>
+  <script src="chrome://zeclau/content/preferences.js"/>
+
+  <html:style>
+    #zotero-prefpane-zoclau {
+      --zc-bg: #f7f4ee;
+      --zc-surface: #ffffff;
+      --zc-border: #d7d0c5;
+      --zc-text: #1f2937;
+      --zc-muted: #5b6472;
+      --zc-accent: #0f766e;
+      --zc-accent-soft: #e6f6f3;
+      --zc-warm: #f97316;
+      background: var(--zc-bg);
+      color: var(--zc-text);
+      padding: 14px;
+    }
+
+    #zotero-prefpane-zoclau .zc-shell {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 960px;
+    }
+
+    #zotero-prefpane-zoclau .zc-hero {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #e9f7f4 0%, #fff4e8 100%);
+      border: 1px solid var(--zc-border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    #zotero-prefpane-zoclau .zc-logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(15, 118, 110, 0.2);
+      flex: 0 0 auto;
+    }
+
+    #zotero-prefpane-zoclau .zc-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.15;
+      color: #0b3d39;
+    }
+
+    #zotero-prefpane-zoclau .zc-subtitle {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: var(--zc-muted);
+    }
+
+    #zotero-prefpane-zoclau groupbox.zc-card {
+      border: 1px solid var(--zc-border);
+      border-radius: 10px;
+      background: var(--zc-surface);
+      padding: 10px 12px;
+      margin: 0;
+      box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+    }
+
+    #zotero-prefpane-zoclau .zc-card-title {
+      margin: 0 0 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--zc-accent);
+    }
+
+    #zotero-prefpane-zoclau .zc-card-note {
+      margin: 0 0 10px;
+      font-size: 11px;
+      color: var(--zc-muted);
+    }
+
+    #zotero-prefpane-zoclau .zc-row {
+      margin: 6px 0;
+      align-items: center;
+    }
+
+    #zotero-prefpane-zoclau .zc-row-top {
+      margin: 8px 0 6px;
+      align-items: flex-start;
+    }
+
+    #zotero-prefpane-zoclau .zc-label {
+      width: 170px;
+      margin-right: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    #zotero-prefpane-zoclau textbox,
+    #zotero-prefpane-zoclau menulist {
+      min-height: 28px;
+      border-radius: 6px;
+    }
+
+    #zotero-prefpane-zoclau textbox[multiline="true"] {
+      min-height: 76px;
+    }
+
+    #zotero-prefpane-zoclau .zc-chip {
+      margin-top: 8px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--zc-accent-soft);
+      color: #115e59;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    #zotero-prefpane-zoclau .zc-row-inline {
+      margin-top: 6px;
+      gap: 14px;
+    }
+
+    #zotero-prefpane-zoclau .zc-divider {
+      border-top: 1px dashed var(--zc-border);
+      margin: 8px 0;
+    }
+
+    #zotero-prefpane-zoclau .zc-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    #zotero-prefpane-zoclau .zc-status {
+      font-size: 11px;
+      color: var(--zc-muted);
+    }
+
+    #zotero-prefpane-zoclau .zc-footer {
+      font-size: 11px;
+      color: var(--zc-muted);
+      text-align: right;
+      padding-right: 4px;
+    }
+
+    #zotero-prefpane-zoclau .zc-footer strong {
+      color: var(--zc-warm);
+      font-weight: 700;
+    }
+  </html:style>
+
+  <html:div class="zc-shell">
+    <html:div class="zc-hero">
+      <html:img class="zc-logo" src="chrome://zeclau/content/icons/zoclau-96.png" alt="Zoclau 图标" />
+      <html:div>
+        <html:h2 class="zc-title">Zoclau</html:h2>
+        <html:p class="zc-subtitle">Zotero 内的 Claude 工作区助手</html:p>
+      </html:div>
+    </html:div>
+
+    <groupbox class="zc-card">
+      <label class="zc-card-title" value="模型与推理" />
+      <label class="zc-card-note" value="为每次回复选择模型配置和思考预算。" />
+
+      <hbox class="zc-row" align="center">
+        <label class="zc-label" value="模型" />
+        <menulist id="zeclau-pref-model" flex="1">
+          <menupopup>
+            <menuitem label="自动（使用 Claude 设置）" value="auto" />
+            <menuitem label="Haiku（快速）" value="haiku" />
+            <menuitem label="Sonnet（均衡）" value="sonnet" />
+            <menuitem label="Opus（强大）" value="opus" />
+          </menupopup>
+        </menulist>
+      </hbox>
+
+      <hbox class="zc-row" align="center">
+        <label class="zc-label" value="思考预算" />
+        <menulist id="zeclau-pref-thinking" flex="1">
+          <menupopup>
+            <menuitem label="关闭" value="off" />
+            <menuitem label="低（1K tokens）" value="low" />
+            <menuitem label="中（4K tokens）" value="medium" />
+            <menuitem label="高（10K tokens）" value="high" />
+            <menuitem label="最高（32K tokens）" value="max" />
+          </menupopup>
+        </menulist>
+      </hbox>
+    </groupbox>
+
+    <groupbox class="zc-card">
+      <label class="zc-card-title" value="Claude CLI" />
+      <label class="zc-card-note" value="配置 CLI 路径与运行模式。" />
+
+      <hbox class="zc-row" align="center">
+        <label class="zc-label" value="CLI 路径" />
+        <textbox id="zeclau-pref-clipath" flex="1" placeholder="自动检测（留空）" />
+      </hbox>
+
+      <hbox class="zc-row" align="center">
+        <label class="zc-label" value="工作目录" />
+        <textbox id="zeclau-pref-workdir" flex="1" placeholder="默认：Zotero 配置目录" />
+      </hbox>
+
+      <hbox class="zc-row" align="center">
+        <label class="zc-label" value="权限模式" />
+        <menulist id="zeclau-pref-permission" flex="1">
+          <menupopup>
+            <menuitem label="YOLO（不提示）" value="yolo" />
+            <menuitem label="安全（需要确认）" value="normal" />
+            <menuitem label="计划（先探索）" value="plan" />
+          </menupopup>
+        </menulist>
+      </hbox>
+      <html:span class="zc-chip">提示：共享设备建议使用“安全”模式。</html:span>
+    </groupbox>
+
+    <groupbox class="zc-card">
+      <label class="zc-card-title" value="个性化" />
+
+      <hbox class="zc-row" align="center">
+        <label class="zc-label" value="用户名" />
+        <textbox id="zeclau-pref-username" flex="1" placeholder="你的名字（用于个性化回复）" />
+      </hbox>
+
+      <hbox class="zc-row-top" align="start">
+        <label class="zc-label" value="系统提示词" />
+        <textbox id="zeclau-pref-systemprompt" multiline="true" rows="4" flex="1" placeholder="给 Claude 的额外指令..." />
+      </hbox>
+
+      <html:div class="zc-divider"></html:div>
+
+      <hbox class="zc-row-top" align="start">
+        <label class="zc-label" value="环境变量" />
+        <textbox id="zeclau-pref-envvars" multiline="true" rows="4" flex="1" placeholder="ANTHROPIC_API_KEY=...&#10;ANTHROPIC_BASE_URL=..." />
+      </hbox>
+    </groupbox>
+
+    <groupbox class="zc-card">
+      <label class="zc-card-title" value="界面" />
+      <hbox class="zc-row-inline" align="center">
+        <checkbox id="zeclau-pref-autoscroll" label="流式输出时自动滚动" native="true" />
+        <checkbox id="zeclau-pref-blocklist" label="启用命令安全拦截列表" native="true" />
+      </hbox>
+
+      <hbox class="zc-actions" align="center">
+        <button id="zeclau-pref-save" label="保存设置" />
+        <button id="zeclau-pref-reload" label="重新加载" />
+        <label id="zeclau-pref-status" class="zc-status" value="" />
+      </hbox>
+    </groupbox>
+
+    <label class="zc-footer" value="由 Zoclau 配置 - Zotero 工作区 AI" />
+  </html:div>
+</vbox>
+
