@@ -475,8 +475,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 24px;
-  max-width: 240px;
+  height: 28px;
+  width: 142px;
   border: 1px solid #c3d1ea;
   border-radius: 999px;
   background: #edf3ff;
@@ -506,10 +506,7 @@
 
 .zeclau-selected-context-wrap,
 .zeclau-local-files-wrap {
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
+  display: contents;
 }
 
 .zeclau-context-clear-btn,
@@ -1071,7 +1068,8 @@
 }
 
 .zeclau-current-item-chip {
-  max-width: 100% !important;
+  width: 142px !important;
+  height: 28px !important;
   min-width: 0 !important;
   white-space: nowrap !important;
   overflow: hidden !important;
@@ -1082,6 +1080,7 @@
   background: #edf3ff !important;
   font-size: 10.5px !important;
   line-height: 1.2 !important;
+  box-sizing: border-box !important;
 }
 
 .zeclau-current-item-chip.is-empty {
@@ -1092,8 +1091,9 @@
 
 .zeclau-paper-chip,
 .zeclau-local-file-chip {
-  min-height: 22px !important;
-  max-width: 220px !important;
+  width: 142px !important;
+  height: 28px !important;
+  box-sizing: border-box !important;
   padding: 3px 8px !important;
 }
 
@@ -1251,8 +1251,8 @@
 
 .zeclau-current-item-group > .zeclau-current-item-chip {
   display: block !important;
-  width: 100% !important;
-  max-width: 100% !important;
+  width: 142px !important;
+  height: 28px !important;
   min-width: 0 !important;
   overflow: hidden !important;
   white-space: nowrap !important;
@@ -1297,13 +1297,15 @@
 
 /* Final tweak v2: shorten both placeholder/current chip and added-paper chip by 1/4 */
 .zeclau-current-item-group {
-  width: min(46.5%, 177px) !important;
-  max-width: min(46.5%, 177px) !important;
+  width: 142px !important;
+  max-width: 142px !important;
 }
 
 .zeclau-paper-chip,
 .zeclau-local-file-chip {
-  max-width: 165px !important;
+  width: 142px !important;
+  height: 28px !important;
+  box-sizing: border-box !important;
 }
 
 .zeclau-paper-chip-label,
@@ -1361,7 +1363,7 @@
 /* Final tweak v5: make top/bottom arrow glyph visibly larger */
 .zeclau-scroll-btn-icon {
   width: 24px;
-  height: 24px;
+  height: 28px;
 }
 
 /* Final tweak v6: force larger scroll-arrow glyphs (compat old/new icon classes) */
@@ -1564,7 +1566,8 @@
 .zeclau-selected-context-wrap > .zeclau-paper-chip {
   position: relative !important;
   box-sizing: border-box !important;
-  min-height: 24px !important;
+  width: 142px !important;
+  height: 28px !important;
   padding: 4px 30px 4px 10px !important;
   border: 1px solid #c8d6ef !important;
   border-radius: 999px !important;
