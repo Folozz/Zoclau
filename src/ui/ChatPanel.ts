@@ -1843,7 +1843,7 @@ export class ChatPanel {
         };
 
         // If papers are already selected, hide the placeholder chip row entirely.
-        if (this.selectedPaperContexts.length > 0) {
+        if (this.selectedPaperContexts.length > 0 && !this.selectedItemContext) {
             setGroupHidden(true);
             if (this.currentItemClearBtn) {
                 this.currentItemClearBtn.style.display = 'none';
@@ -1852,6 +1852,34 @@ export class ChatPanel {
         }
 
         setGroupHidden(false);
+
+        const samplePaperChip = this.selectedContextWrap?.querySelector('.zeclau-paper-chip') as HTMLElement | null;
+        if (samplePaperChip && group) {
+            const view = this.doc.defaultView;
+            const sampleStyle = view ? view.getComputedStyle(samplePaperChip) : null;
+            const sampleRect = samplePaperChip.getBoundingClientRect();
+            if (sampleStyle && sampleRect.width > 0) {
+                const widthPx = Math.round(sampleRect.width) + "px";
+                group.style.setProperty('width', widthPx, 'important');
+                group.style.setProperty('min-width', widthPx, 'important');
+                group.style.setProperty('max-width', widthPx, 'important');
+
+                this.currentItemChip.style.setProperty('display', 'block');
+                this.currentItemChip.style.setProperty('box-sizing', sampleStyle.boxSizing || 'border-box');
+                this.currentItemChip.style.setProperty('width', '100%');
+                this.currentItemChip.style.setProperty('min-width', '100%');
+                this.currentItemChip.style.setProperty('max-width', '100%');
+                this.currentItemChip.style.setProperty('min-height', sampleStyle.minHeight || '24px');
+                this.currentItemChip.style.setProperty('padding-top', sampleStyle.paddingTop || '4px');
+                this.currentItemChip.style.setProperty('padding-right', sampleStyle.paddingRight || '30px');
+                this.currentItemChip.style.setProperty('padding-bottom', sampleStyle.paddingBottom || '4px');
+                this.currentItemChip.style.setProperty('padding-left', sampleStyle.paddingLeft || '10px');
+                this.currentItemChip.style.setProperty('border', sampleStyle.border || '1px solid #c8d6ef');
+                this.currentItemChip.style.setProperty('border-radius', sampleStyle.borderRadius || '999px');
+                this.currentItemChip.style.setProperty('font-size', sampleStyle.fontSize || '10.5px');
+                this.currentItemChip.style.setProperty('line-height', sampleStyle.lineHeight || '1.2');
+            }
+        }
 
         if (this.selectedItemContext) {
             const title = this.selectedItemContext.title;
@@ -1999,6 +2027,11 @@ export class ChatPanel {
         this.selectedLocalFiles = [];
     }
 }
+
+
+
+
+
 
 
 
