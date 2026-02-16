@@ -177,7 +177,7 @@ function mountChatPanel(body: any): ChatPanel | null {
     hostBody.style.minWidth = '0';
     hostBody.style.height = '100%';
     hostBody.style.maxHeight = '100%';
-    hostBody.style.minHeight = '620px';
+    hostBody.style.minHeight = '0';
     hostBody.style.overflow = 'hidden';
     hostBody.style.boxSizing = 'border-box';
     hostBody.style.margin = '0';
@@ -197,7 +197,7 @@ function mountChatPanel(body: any): ChatPanel | null {
     container.style.alignSelf = 'stretch';
     container.style.height = '100%';
     container.style.maxHeight = '100%';
-    container.style.minHeight = '620px';
+    container.style.minHeight = '0';
     container.style.flex = '1 1 auto';
     container.style.overflow = 'hidden';
     container.style.boxSizing = 'border-box';

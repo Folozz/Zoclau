@@ -3,7 +3,7 @@
  * Uses Zotero.Prefs to read/write preferences with compatibility fallbacks.
  */
 
-import type { ZeClauSettings, ConversationMeta } from './types';
+import type { ZeClauSettings, ConversationMeta, ChatMessage } from './types';
 import { DEFAULT_SETTINGS } from './types';
 
 declare const Zotero: any;
@@ -78,4 +78,20 @@ export function loadConversations(): ConversationMeta[] {
 
 export function saveConversations(conversations: ConversationMeta[]): void {
     setPref('conversations', JSON.stringify(conversations));
+}
+
+export function loadMessages(): Record<string, ChatMessage[]> {
+    try {
+        const raw = getPref('messages');
+        if (typeof raw === 'string' && raw.length > 0) {
+            return JSON.parse(raw);
+        }
+    } catch (e) {
+        Zotero.debug(`[Zoclau] Failed to load messages: ${e}`);
+    }
+    return {};
+}
+
+export function saveMessages(messages: Record<string, ChatMessage[]>): void {
+    setPref('messages', JSON.stringify(messages));
 }

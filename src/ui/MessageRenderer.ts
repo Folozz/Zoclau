@@ -6,6 +6,45 @@
 import { markdownToHtml } from '../utils/markdown';
 import type { ChatMessage, ToolUseBlock, ToolResultBlock } from '../settings/types';
 
+function createCopyIcon(doc: Document): SVGSVGElement {
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = doc.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', '13');
+    svg.setAttribute('height', '13');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '2');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    const rect = doc.createElementNS(ns, 'rect');
+    rect.setAttribute('x', '9'); rect.setAttribute('y', '9');
+    rect.setAttribute('width', '13'); rect.setAttribute('height', '13');
+    rect.setAttribute('rx', '2');
+    const path = doc.createElementNS(ns, 'path');
+    path.setAttribute('d', 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1');
+    svg.appendChild(rect);
+    svg.appendChild(path);
+    return svg;
+}
+
+function createCheckIcon(doc: Document): SVGSVGElement {
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = doc.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', '13');
+    svg.setAttribute('height', '13');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '2');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    const polyline = doc.createElementNS(ns, 'polyline');
+    polyline.setAttribute('points', '20 6 9 17 4 12');
+    svg.appendChild(polyline);
+    return svg;
+}
+
 export interface RenderMessageOptions {
     onUserResend?: (content: string) => void;
 }
@@ -40,12 +79,12 @@ export function renderMessage(message: ChatMessage, doc: Document, options?: Ren
         const copyBtn = doc.createElement('button');
         copyBtn.className = 'zeclau-text-copy-btn';
         copyBtn.type = 'button';
-        copyBtn.textContent = '复制';
+        copyBtn.appendChild(createCopyIcon(doc));
         copyBtn.addEventListener('click', async () => {
             const ok = await copyText(message.content, doc);
-            copyBtn.textContent = ok ? '已复制' : '复制失败';
+            copyBtn.replaceChildren(ok ? createCheckIcon(doc) : createCopyIcon(doc));
             setTimeout(() => {
-                copyBtn.textContent = '复制';
+                copyBtn.replaceChildren(createCopyIcon(doc));
             }, 1200);
         });
         textBlock.appendChild(copyBtn);
@@ -67,28 +106,17 @@ export function renderMessage(message: ChatMessage, doc: Document, options?: Ren
         const copyBtn = doc.createElement('button');
         copyBtn.className = 'zeclau-user-msg-action';
         copyBtn.type = 'button';
-        copyBtn.textContent = '复制';
+        copyBtn.appendChild(createCopyIcon(doc));
+        copyBtn.title = '复制';
         copyBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
             const ok = await copyText(message.content, doc);
-            copyBtn.textContent = ok ? '已复制' : '复制失败';
+            copyBtn.replaceChildren(ok ? createCheckIcon(doc) : createCopyIcon(doc));
             setTimeout(() => {
-                copyBtn.textContent = '复制';
+                copyBtn.replaceChildren(createCopyIcon(doc));
             }, 1200);
         });
         actions.appendChild(copyBtn);
-
-        if (options?.onUserResend) {
-            const resendBtn = doc.createElement('button');
-            resendBtn.className = 'zeclau-user-msg-action';
-            resendBtn.type = 'button';
-            resendBtn.textContent = '重发';
-            resendBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                options.onUserResend?.(message.content);
-            });
-            actions.appendChild(resendBtn);
-        }
 
         wrapper.appendChild(actions);
     }

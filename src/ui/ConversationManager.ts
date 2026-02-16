@@ -3,7 +3,7 @@
  */
 
 import type { ConversationMeta, ChatMessage } from '../settings/types';
-import { loadConversations, saveConversations } from '../settings/prefs';
+import { loadConversations, saveConversations, loadMessages, saveMessages } from '../settings/prefs';
 
 declare const Zotero: any;
 
@@ -11,6 +11,7 @@ const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const RETENTION_SHORT_MS = 30 * ONE_DAY_MS;
 const RETENTION_LONG_MS = 90 * ONE_DAY_MS;
 const STORAGE_THRESHOLD_BYTES = 96 * 1024;
+const MAX_CONVERSATIONS = 15;
 
 export class ConversationManager {
     private conversations: ConversationMeta[] = [];
@@ -28,12 +29,37 @@ export class ConversationManager {
         if (pruned) {
             this.save();
         }
+        // Restore messages from storage
+        const stored = loadMessages();
+        const validIds = new Set(this.conversations.map((c) => c.id));
+        for (const [id, msgs] of Object.entries(stored)) {
+            if (validIds.has(id) && Array.isArray(msgs)) {
+                this.messages.set(id, msgs);
+            }
+        }
+        // Restore last active conversation (most recently updated)
+        if (this.conversations.length > 0 && !this.activeConversationId) {
+            this.activeConversationId = this.conversations[0].id;
+        }
     }
 
     /** Save conversations to storage */
     save(): void {
         this.pruneExpiredConversations();
+        this.pruneExcessConversations();
         saveConversations(this.conversations);
+        this.saveMessages();
+    }
+
+    private saveMessages(): void {
+        const obj: Record<string, any[]> = {};
+        const validIds = new Set(this.conversations.map((c) => c.id));
+        for (const [id, msgs] of this.messages.entries()) {
+            if (validIds.has(id) && msgs.length > 0) {
+                obj[id] = msgs;
+            }
+        }
+        saveMessages(obj);
     }
 
     /** Get all conversations */
@@ -222,6 +248,18 @@ export class ConversationManager {
         }
 
         return changed;
+    }
+
+    private pruneExcessConversations(): void {
+        if (this.conversations.length <= MAX_CONVERSATIONS) return;
+        this.conversations.sort((a, b) => b.updatedAt - a.updatedAt);
+        const removed = this.conversations.splice(MAX_CONVERSATIONS);
+        for (const conv of removed) {
+            this.messages.delete(conv.id);
+            if (this.activeConversationId === conv.id) {
+                this.activeConversationId = this.conversations[0]?.id || null;
+            }
+        }
     }
 
     /** Clear all data */

@@ -54,6 +54,7 @@ export class ChatPanel {
     private modelSelector: HTMLSelectElement | null = null;
     private statusBar: HTMLElement | null = null;
     private statusDot: HTMLElement | null = null;
+    private composerToolbar: HTMLElement | null = null;
     private conversationTitleBtn: HTMLButtonElement | null = null;
     private historyToggleBtn: HTMLButtonElement | null = null;
     private historyMenu: HTMLElement | null = null;
@@ -81,6 +82,7 @@ export class ChatPanel {
     private selectedLocalFiles: LocalFileEntry[] = [];
     private selectedPaperContexts: ContextEntry[] = [];
     private historyMenuRowHeight = 44;
+    private historyActiveIndex = -1;
 
     constructor(
         doc: Document,
@@ -102,17 +104,18 @@ export class ChatPanel {
         this.container.innerHTML = '';
         this.container.className = 'zeclau-panel zeclau-panel-embedded';
         this.container.style.display = 'grid';
-        this.container.style.gridTemplateRows = 'minmax(0, 1fr) auto';
+        this.container.style.gridTemplateRows = 'minmax(0, 1fr) minmax(0, auto)';
         this.container.style.height = '100%';
         this.container.style.maxHeight = '100%';
         this.container.style.minHeight = '0';
         this.container.style.overflow = 'hidden';
+        this.container.style.position = 'relative';
 
         this.messagesWrapper = this.doc.createElement('div');
         this.messagesWrapper.className = 'zeclau-messages-wrapper';
-        this.messagesWrapper.style.minHeight = '390px';
-        this.messagesWrapper.style.height = '390px';
-        this.messagesWrapper.style.maxHeight = '390px';
+        this.messagesWrapper.style.minHeight = '0';
+        this.messagesWrapper.style.height = '100%';
+        this.messagesWrapper.style.maxHeight = '100%';
         this.messagesWrapper.style.overflow = 'hidden';
 
         this.messagesContainer = this.doc.createElement('div');
@@ -290,46 +293,10 @@ export class ChatPanel {
 
         const toolbar = this.doc.createElement('div');
         toolbar.className = 'zeclau-composer-toolbar';
+        this.composerToolbar = toolbar;
+        this.composerToolbar.classList.add('zeclau-history-wrap');
+        this.ensureHistoryMenu();
 
-        const newBtn = this.doc.createElement('button');
-        newBtn.type = 'button';
-        newBtn.className = 'zeclau-icon-btn zeclau-toolbar-btn zeclau-toolbar-btn-new';
-        newBtn.title = '新建会话';
-        newBtn.appendChild(this.createToolbarIcon('new'));
-        newBtn.addEventListener('click', () => this.newChat());
-
-        const historyWrap = this.doc.createElement('div');
-        historyWrap.className = 'zeclau-history-wrap';
-
-        this.historyToggleBtn = this.doc.createElement('button');
-        this.historyToggleBtn.type = 'button';
-        this.historyToggleBtn.className = 'zeclau-icon-btn zeclau-toolbar-btn zeclau-toolbar-btn-history';
-        this.historyToggleBtn.title = '历史会话';
-        this.historyToggleBtn.appendChild(this.createToolbarIcon('history'));
-        this.historyToggleBtn.addEventListener('click', () => this.toggleHistoryMenu());
-
-        this.historyMenu = this.doc.createElement('div');
-        this.historyMenu.className = 'zeclau-history-menu';
-        this.historyMenu.style.display = 'none';
-        this.historyMenu.style.overflowY = 'scroll';
-        this.historyMenu.style.overscrollBehavior = 'contain';
-        this.historyMenu.addEventListener('wheel', (event: WheelEvent) => {
-            const menu = this.historyMenu;
-            if (!menu) return;
-            if (menu.scrollHeight <= menu.clientHeight) return;
-            const before = menu.scrollTop;
-            menu.scrollTop += event.deltaY;
-            if (menu.scrollTop !== before) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-        }, { passive: false });
-
-        historyWrap.appendChild(this.historyToggleBtn);
-        historyWrap.appendChild(this.historyMenu);
-
-        toolbar.appendChild(newBtn);
-        toolbar.appendChild(historyWrap);
         inputArea.appendChild(toolbar);
 
         const shell = this.doc.createElement('div');
@@ -406,6 +373,29 @@ export class ChatPanel {
                 }
             }
 
+            if (this.historyMenu && this.historyMenu.style.display !== 'none') {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    this.moveHistorySelection(1);
+                    return;
+                }
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    this.moveHistorySelection(-1);
+                    return;
+                }
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.selectHistoryActiveConversation();
+                    return;
+                }
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    this.hideHistoryMenu();
+                    return;
+                }
+            }
+
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 void this.handleSend();
@@ -417,6 +407,7 @@ export class ChatPanel {
                 this.inputTextarea.style.height = `${Math.min(this.inputTextarea.scrollHeight, 220)}px`;
             }
             this.updateMentionDropdown();
+            this.updateSlashCommandDropdown();
         });
         this.inputTextarea.addEventListener('blur', () => {
             setTimeout(() => this.hideMentionDropdown(), 120);
@@ -434,13 +425,12 @@ export class ChatPanel {
         const footerLeft = this.doc.createElement('div');
         footerLeft.className = 'zeclau-input-footer-left';
 
-        const modelMeta = this.doc.createElement('span');
-        modelMeta.className = 'zeclau-meta-badge zeclau-meta-model';
-        modelMeta.textContent = this.getModelMetaLabel();
-
-        const thinkingMeta = this.doc.createElement('span');
-        thinkingMeta.className = 'zeclau-meta-badge zeclau-meta-thinking';
-        thinkingMeta.textContent = `Thinking: ${String(this.settings?.thinkingBudget || 'off')}`;
+        const newBtnFooter = this.doc.createElement('button');
+        newBtnFooter.type = 'button';
+        newBtnFooter.className = 'zeclau-icon-btn zeclau-toolbar-btn zeclau-toolbar-btn-new';
+        newBtnFooter.title = '新建会话';
+        newBtnFooter.appendChild(this.createToolbarIcon('new'));
+        newBtnFooter.addEventListener('click', () => this.newChat());
 
         const addFolderBtn = this.doc.createElement('button');
         addFolderBtn.type = 'button';
@@ -449,8 +439,7 @@ export class ChatPanel {
         addFolderBtn.appendChild(this.createToolbarIcon('folder'));
         addFolderBtn.addEventListener('click', () => this.pickLocalFiles());
 
-        footerLeft.appendChild(modelMeta);
-        footerLeft.appendChild(thinkingMeta);
+        footerLeft.appendChild(newBtnFooter);
         footerLeft.appendChild(addFolderBtn);
 
         const actionGroup = this.doc.createElement('div');
@@ -500,6 +489,16 @@ export class ChatPanel {
         this.renderSelectedPaperContexts();
         this.renderSelectedLocalFiles();
         return inputArea;
+    }
+
+    private ensureHistoryMenu(): void {
+        if (this.historyMenu) return;
+        if (!this.container) return;
+
+        this.historyMenu = this.doc.createElement('div');
+        this.historyMenu.className = 'zeclau-history-menu';
+        this.historyMenu.style.display = 'none';
+        this.container.appendChild(this.historyMenu);
     }
 
     private buildScrollRail(): HTMLElement {
@@ -642,6 +641,7 @@ export class ChatPanel {
     }
 
     private toggleHistoryMenu(): void {
+        this.ensureHistoryMenu();
         if (!this.historyMenu) return;
         const showing = this.historyMenu.style.display !== 'none';
         if (showing) {
@@ -649,13 +649,7 @@ export class ChatPanel {
             return;
         }
 
-        this.historyMenu.style.display = 'block';
-        const win = this.doc.defaultView;
-        if (win && typeof win.requestAnimationFrame === 'function') {
-            win.requestAnimationFrame(() => this.syncHistoryMenuHeightFromVisibleRow());
-        } else {
-            this.syncHistoryMenuHeightFromVisibleRow();
-        }
+        this.showHistoryMenu();
     }
 
     private hideHistoryMenu(): void {
@@ -664,8 +658,107 @@ export class ChatPanel {
         }
     }
 
+    private showHistoryMenu(): void {
+        this.ensureHistoryMenu();
+        if (!this.historyMenu) return;
+
+        this.historyActiveIndex = -1;
+        // Position above input area within container
+        const inputEl = this.container.querySelector('.zeclau-input-area') as HTMLElement | null;
+        const bottomPx = inputEl ? inputEl.getBoundingClientRect().height + 4 : 60;
+        this.historyMenu.style.position = 'absolute';
+        this.historyMenu.style.bottom = `${bottomPx}px`;
+        this.historyMenu.style.left = '0';
+        this.historyMenu.style.right = '0';
+        this.historyMenu.style.zIndex = '52';
+        this.historyMenu.style.display = 'block';
+        const win = this.doc.defaultView;
+        if (win && typeof win.requestAnimationFrame === 'function') {
+            win.requestAnimationFrame(() => this.syncHistoryMenuHeightFromVisibleRow());
+        } else {
+            this.syncHistoryMenuHeightFromVisibleRow();
+        }
+        this.ensureHistorySelection();
+    }
+
+    private updateSlashCommandDropdown(): void {
+        if (!this.inputTextarea) return;
+
+        if (this.isHistoryCommandInput(this.inputTextarea.value)) {
+            this.hideMentionDropdown();
+            this.renderConversationOptions();
+            this.showHistoryMenu();
+            return;
+        }
+
+        this.hideHistoryMenu();
+    }
+
+    private getHistoryMenuItems(): HTMLButtonElement[] {
+        if (!this.historyMenu) return [];
+        return Array.from(this.historyMenu.querySelectorAll('.zeclau-history-item')) as HTMLButtonElement[];
+    }
+
+    private ensureHistorySelection(): void {
+        const items = this.getHistoryMenuItems();
+        if (items.length === 0) {
+            this.historyActiveIndex = -1;
+            return;
+        }
+
+        if (this.historyActiveIndex < 0 || this.historyActiveIndex >= items.length) {
+            const activeIndex = items.findIndex((item) => item.classList.contains('is-active'));
+            this.historyActiveIndex = activeIndex >= 0 ? activeIndex : 0;
+        }
+
+        items.forEach((item, index) => {
+            const row = item.closest('.zeclau-history-row');
+            const selected = index === this.historyActiveIndex;
+            item.classList.toggle('is-active', selected);
+            row?.classList.toggle('is-active', selected);
+        });
+
+        this.scrollActiveOptionIntoView(this.historyMenu, '.zeclau-history-item.is-active');
+    }
+
+    private moveHistorySelection(delta: number): void {
+        const items = this.getHistoryMenuItems();
+        if (items.length === 0) return;
+
+        if (this.historyActiveIndex < 0 || this.historyActiveIndex >= items.length) {
+            this.historyActiveIndex = 0;
+        } else {
+            this.historyActiveIndex = (this.historyActiveIndex + delta + items.length) % items.length;
+        }
+
+        this.ensureHistorySelection();
+    }
+
+    private selectHistoryActiveConversation(): void {
+        const items = this.getHistoryMenuItems();
+        if (items.length === 0) return;
+
+        if (this.historyActiveIndex < 0 || this.historyActiveIndex >= items.length) {
+            this.historyActiveIndex = 0;
+        }
+
+        const selected = items[this.historyActiveIndex];
+        const conversationId = selected?.dataset?.conversationId || '';
+        if (!conversationId) return;
+
+        this.switchConversation(conversationId);
+        this.hideHistoryMenu();
+    }
+
+    private isHistoryCommandInput(text: string): boolean {
+        return /\/(history|histroy|hisotry|histry)\b/i.test(text);
+    }
+
     private syncHistoryMenuHeightFromVisibleRow(): void {
         if (!this.historyMenu || this.historyMenu.style.display === 'none') return;
+
+        this.ensureHistorySelection();
+        
 
         const firstRow = this.historyMenu.querySelector('.zeclau-history-row') as HTMLElement | null;
         const measuredRowHeight = firstRow ? Math.round(firstRow.getBoundingClientRect().height) : 0;
@@ -688,7 +781,9 @@ export class ChatPanel {
             return;
         }
 
-        for (const conv of conversations) {
+        this.historyActiveIndex = -1;
+
+        for (const [index, conv] of conversations.entries()) {
             const row = this.doc.createElement('div');
             row.className = 'zeclau-history-row';
 
@@ -697,10 +792,12 @@ export class ChatPanel {
             item.style.display = 'block';
             item.style.width = '100%';
             item.style.margin = '0';
-            item.className = 'zeclau-history-item';
+            item.className = 'zeclau-history-item zeclau-mention-item';
+            item.dataset.conversationId = conv.id;
             if (conv.id === activeId) {
                 item.classList.add('is-active');
                 row.classList.add('is-active');
+                this.historyActiveIndex = index;
             }
             item.title = conv.title;
 
@@ -736,6 +833,8 @@ export class ChatPanel {
             row.appendChild(deleteBtn);
             this.historyMenu.appendChild(row);
         }
+
+        this.ensureHistorySelection();
 
         const firstRow = this.historyMenu.querySelector('.zeclau-history-row') as HTMLElement | null;
         const measuredRowHeight = firstRow ? Math.round(firstRow.getBoundingClientRect().height) : 0;
@@ -849,10 +948,21 @@ export class ChatPanel {
     }
 
     private async handleSend(): Promise<void> {
-        if (!this.inputTextarea || this.service.busy) return;
+        if (!this.inputTextarea) return;
 
         const text = this.inputTextarea.value.trim();
         if (!text) return;
+
+        // Handle /history command (before busy check)
+        if (this.isHistoryCommandInput(text)) {
+            this.inputTextarea.value = '';
+            this.inputTextarea.style.height = 'auto';
+            this.renderConversationOptions();
+            this.showHistoryMenu();
+            return;
+        }
+
+        if (this.service.busy) return;
 
         this.followNewest = true;
         this.hideMentionDropdown();
@@ -1036,6 +1146,7 @@ export class ChatPanel {
         const activeId = this.ensureActiveConversation();
         const conversations = this.conversationManager.getAll();
         const activeConv = conversations.find((conv) => conv.id === activeId) || null;
+        this.ensureHistoryMenu();
 
         if (this.historyToggleBtn) {
             this.historyToggleBtn.title = activeConv
@@ -1656,6 +1767,18 @@ export class ChatPanel {
         this.mentionDropdown.style.removeProperty('top');
         this.mentionDropdown.style.removeProperty('right');
         this.mentionDropdown.style.removeProperty('bottom');
+        this.scrollActiveOptionIntoView(this.mentionDropdown, '.zeclau-mention-item.is-active');
+    }
+
+    private scrollActiveOptionIntoView(container: HTMLElement | null, selector: string): void {
+        if (!container) return;
+        const active = container.querySelector(selector) as HTMLElement | null;
+        if (!active) return;
+        try {
+            active.scrollIntoView({ block: 'nearest' });
+        } catch {
+            // ignore old environments
+        }
     }
 
     private positionMentionDropdownNearAt(): void {
@@ -2009,6 +2132,7 @@ export class ChatPanel {
         this.modelSelector = null;
         this.statusBar = null;
         this.statusDot = null;
+        this.composerToolbar = null;
         this.conversationTitleBtn = null;
         this.historyToggleBtn = null;
         this.historyMenu = null;
@@ -2027,6 +2151,8 @@ export class ChatPanel {
         this.selectedLocalFiles = [];
     }
 }
+
+
 
 
 
