@@ -130,6 +130,7 @@ export function renderMessage(message: ChatMessage, doc: Document, options?: Ren
 export function renderToolUse(block: ToolUseBlock, doc: Document): HTMLElement {
     const wrapper = doc.createElement('div');
     wrapper.className = 'zeclau-tool-use zeclau-tool-call';
+    wrapper.setAttribute('data-tool-id', block.id);
 
     const header = doc.createElement('div');
     header.className = 'zeclau-tool-header';
@@ -209,7 +210,9 @@ export function renderError(error: string, doc: Document, options?: RenderErrorO
 
     const text = doc.createElement('span');
     text.className = 'zeclau-error-text';
-    text.textContent = `错误：${error}`;
+    // Insert zero-width spaces every 40 chars to allow line breaking on long unbreakable strings
+    const errorText = `错误：${error}`.replace(/(.{40})/g, '$1\u200B');
+    text.textContent = errorText;
     wrapper.appendChild(text);
 
     if (options?.onRetry) {

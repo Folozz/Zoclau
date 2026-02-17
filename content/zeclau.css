@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Zoclau embedded item-pane styling.
  * Clean single-source stylesheet (no stacked overrides).
  */
@@ -26,12 +26,15 @@
   max-height: 100% !important;
   min-height: 0 !important;
   overflow: hidden !important;
+  max-width: 100% !important;
+  width: 100% !important;
 }
 
 #zeclau-itempane-root > .zeclau-panel.zeclau-panel-embedded {
   height: 100% !important;
   max-height: 100% !important;
   overflow: hidden !important;
+  max-width: 100% !important;
 }
 
 .zeclau-panel {
@@ -53,6 +56,7 @@
   border-radius: 14px;
   background: radial-gradient(circle at 100% -10%, #eef4ff 0%, #f6f8fd 34%, #f6f8fd 100%);
   overflow: hidden;
+  max-width: 100%;
 }
 
 /* Keep the legacy floating widgets disabled */
@@ -65,6 +69,7 @@
 .zeclau-messages-wrapper {
   position: relative;
   min-height: 0;
+  min-width: 0;
   height: 100%;
   max-height: 100%;
   overflow: hidden;
@@ -76,7 +81,9 @@
 .zeclau-messages {
   height: 100%;
   min-height: 0;
+  min-width: 0;
   max-height: 100%;
+  max-width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 12px 52px 12px 10px;
@@ -286,13 +293,68 @@
 }
 
 /* ---------- Tool Events ---------- */
-.zeclau-tool-call {
+.zeclau-tool-group {
   align-self: flex-start;
-  max-width: min(88%, 62ch);
+  max-width: 100%;
+  width: fit-content;
   border: 1px solid #d9e2f2;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.74);
   padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.zeclau-tool-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.zeclau-tool-group-label {
+  font-family: var(--zeclau-mono);
+  font-size: 11px;
+  color: var(--zeclau-muted);
+}
+
+.zeclau-tool-group-toggle {
+  border: none;
+  background: transparent;
+  color: #4f6ea3;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.zeclau-tool-group-body > .zeclau-tool-call {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  max-width: 100%;
+  width: auto;
+}
+
+.zeclau-tool-group-body > .zeclau-tool-call + .zeclau-tool-call {
+  border-top: 1px solid #e8edf6;
+  padding-top: 6px;
+  margin-top: 6px;
+}
+
+.zeclau-tool-call {
+  align-self: flex-start;
+  max-width: 100%;
+  width: fit-content;
+  border: 1px solid #d9e2f2;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.74);
+  padding: 8px 10px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .zeclau-tool-header {
@@ -341,14 +403,17 @@
   line-height: 1.45;
   white-space: pre-wrap;
   word-break: break-word;
+  overflow-wrap: break-word;
   max-height: 220px;
   overflow: auto;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* ---------- Error ---------- */
 .zeclau-error {
   align-self: flex-start;
-  max-width: min(90%, 62ch);
+  max-width: 100%;
   border: 1px solid #f8c6d0;
   background: #fff2f5;
   color: #b42343;
@@ -358,11 +423,16 @@
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
+  box-sizing: border-box;
 }
 
 .zeclau-error-text {
   font-size: 13px;
   line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .zeclau-error-retry {
@@ -1531,10 +1601,10 @@
   line-height: 1 !important;
 }
 
-/* Final tweak v17: shrink history list width by 1/5 */
+/* Final tweak v17: history menu width matches input area */
 .zeclau-history-menu {
-  min-width: 214px !important;
-  max-width: 256px !important;
+  min-width: 0 !important;
+  max-width: none !important;
 }
 
 /* Final tweak v18: fix history menu height to exactly 5 rows */
@@ -1608,8 +1678,6 @@
 
 /* Final tweak v21: slash-history dropdown follows @mention style */
 .zeclau-history-menu {
-  left: 0 !important;
-  right: 0 !important;
   top: auto !important;
   width: auto !important;
   min-width: 0 !important;
@@ -1672,7 +1740,7 @@
   font-weight: 600 !important;
 }
 /* Final tweak v24: swap active/selected colors in @ mention list */
-/* 当前键盘目标：中深蓝 */
+/* ��ǰ����Ŀ�꣺������ */
 .zeclau-mention-dropdown .zeclau-mention-item.is-active {
   background: #c8d9f5 !important;
   color: #3a6aab !important;
@@ -1680,7 +1748,7 @@
   font-weight: 500 !important;
 }
 
-/* 已添加论文：淡蓝 */
+/* ���������ģ����� */
 .zeclau-mention-dropdown .zeclau-mention-item.is-selected,
 .zeclau-mention-dropdown .zeclau-mention-item.is-selected:hover {
   background: #e9f1ff !important;
@@ -1689,7 +1757,7 @@
   font-weight: 500 !important;
 }
 
-/* 已添加论文 + 当前键盘目标：用深色 */
+/* ���������� + ��ǰ����Ŀ�꣺����ɫ */
 .zeclau-mention-dropdown .zeclau-mention-item.is-selected.is-active {
   background: #c8d9f5 !important;
   color: #3a6aab !important;
@@ -1762,7 +1830,8 @@
 /* Final tweak v26: fixed plugin panel height */
 #zeclau-itempane-root,
 #zeclau-itempane-root > .zeclau-panel.zeclau-panel-embedded {
-  height: 650px !important;
-  min-height: 650px !important;
-  max-height: 650px !important;
+  height: 640px !important;
+  min-height: 640px !important;
+  max-height: 640px !important;
 }
+

@@ -83,6 +83,9 @@ export class ChatPanel {
     private selectedPaperContexts: ContextEntry[] = [];
     private historyMenuRowHeight = 44;
     private historyActiveIndex = -1;
+    private slashMode = false;
+    private skillCache: { name: string; fullName: string }[] = [];
+    private skillCacheAt = 0;
 
     constructor(
         doc: Document,
@@ -663,15 +666,26 @@ export class ChatPanel {
         if (!this.historyMenu) return;
 
         this.historyActiveIndex = -1;
-        // Position above input area within container
+        // Position above input area, aligned to input area width
         const inputEl = this.container.querySelector('.zeclau-input-area') as HTMLElement | null;
-        const bottomPx = inputEl ? inputEl.getBoundingClientRect().height + 4 : 60;
+        const bottomPx = inputEl ? inputEl.getBoundingClientRect().height + 12 : 60;
         this.historyMenu.style.position = 'absolute';
         this.historyMenu.style.bottom = `${bottomPx}px`;
-        this.historyMenu.style.left = '0';
-        this.historyMenu.style.right = '0';
         this.historyMenu.style.zIndex = '52';
         this.historyMenu.style.display = 'block';
+
+        // Align left/right to input area with small inset
+        if (inputEl) {
+            const containerRect = this.container.getBoundingClientRect();
+            const inputRect = inputEl.getBoundingClientRect();
+            const left = inputRect.left - containerRect.left + 4;
+            const right = containerRect.right - inputRect.right + 4;
+            this.historyMenu.style.left = `${left}px`;
+            this.historyMenu.style.right = `${right}px`;
+        } else {
+            this.historyMenu.style.left = '4px';
+            this.historyMenu.style.right = '4px';
+        }
         const win = this.doc.defaultView;
         if (win && typeof win.requestAnimationFrame === 'function') {
             win.requestAnimationFrame(() => this.syncHistoryMenuHeightFromVisibleRow());
@@ -900,15 +914,74 @@ export class ChatPanel {
         this.service.onToolUse((block: ToolUseBlock) => {
             if (this.messagesContainer) {
                 const el = renderToolUse(block, this.doc);
-                this.messagesContainer.appendChild(el);
+                // Group consecutive tool calls into one bubble
+                let group = this.messagesContainer.lastElementChild;
+                if (!group || !group.classList.contains('zeclau-tool-group')) {
+                    group = this.doc.createElement('div');
+                    group.className = 'zeclau-tool-group';
+
+                    const header = this.doc.createElement('div');
+                    header.className = 'zeclau-tool-group-header';
+                    const label = this.doc.createElement('span');
+                    label.className = 'zeclau-tool-group-label';
+                    label.textContent = '工具调用';
+                    const toggle = this.doc.createElement('button');
+                    toggle.className = 'zeclau-tool-group-toggle';
+                    toggle.type = 'button';
+                    toggle.textContent = '收起';
+                    header.appendChild(label);
+                    header.appendChild(toggle);
+                    group.appendChild(header);
+
+                    const body = this.doc.createElement('div');
+                    body.className = 'zeclau-tool-group-body';
+                    group.appendChild(body);
+
+                    toggle.addEventListener('click', () => {
+                        const collapsed = body.style.display === 'none';
+                        body.style.display = collapsed ? '' : 'none';
+                        toggle.textContent = collapsed ? '收起' : '展开';
+                    });
+
+                    this.messagesContainer.appendChild(group);
+                }
+                const body = group.querySelector('.zeclau-tool-group-body');
+                (body || group).appendChild(el);
+                // Update count in label
+                const label = group.querySelector('.zeclau-tool-group-label');
+                const count = (body || group).querySelectorAll('.zeclau-tool-use').length;
+                if (label && count > 0) {
+                    label.textContent = `工具调用 (${count})`;
+                }
                 this.scrollToBottom();
             }
         });
 
         this.service.onToolResult((block: ToolResultBlock) => {
             if (this.messagesContainer) {
-                const el = renderToolResult(block, this.doc);
-                this.messagesContainer.appendChild(el);
+                // Find matching tool_use element and update it inline
+                const toolEl = this.messagesContainer.querySelector(
+                    `.zeclau-tool-use[data-tool-id="${block.toolUseId}"]`
+                );
+                if (toolEl) {
+                    const status = toolEl.querySelector('.zeclau-tool-status');
+                    if (status) {
+                        status.textContent = block.isError ? '错误' : '完成';
+                        status.className = `zeclau-tool-status ${block.isError ? 'zeclau-tool-status-error' : 'zeclau-tool-status-completed'}`;
+                    }
+                    if (block.content) {
+                        const content = this.doc.createElement('pre');
+                        content.className = 'zeclau-tool-result-text';
+                        content.textContent = block.content.length > 1200
+                            ? block.content.substring(0, 1200) + '...'
+                            : block.content;
+                        toolEl.appendChild(content);
+                    }
+                } else {
+                    // Fallback: render standalone
+                    const el = renderToolResult(block, this.doc);
+                    this.messagesContainer.appendChild(el);
+                }
                 this.scrollToBottom();
             }
         });
@@ -1707,6 +1780,15 @@ export class ChatPanel {
         const value = this.inputTextarea.value;
         const caret = this.inputTextarea.selectionStart || 0;
         const before = value.slice(0, caret);
+
+        // Check for / slash command trigger (but not /history)
+        const slashMatch = before.match(/(?:^|\s)\/([^\s]*)$/);
+        if (slashMatch && !this.isHistoryCommandInput(value)) {
+            const query = (slashMatch[1] || '').toLowerCase();
+            void this.updateSlashDropdown(query, caret - slashMatch[0].trimStart().length, caret);
+            return;
+        }
+
         const match = before.match(/(?:^|\s)@([^\s@\]]*)$/);
 
         if (!match) {
@@ -1714,6 +1796,7 @@ export class ChatPanel {
             return;
         }
 
+        this.slashMode = false;
         const rawQuery = (match[1] || '').trim().toLowerCase();
         const contexts = this.getFolderCandidateContexts();
         const filtered = contexts.filter((ctx) => {
@@ -1735,6 +1818,34 @@ export class ChatPanel {
         this.renderMentionDropdown();
     }
 
+    private async updateSlashDropdown(query: string, start: number, end: number): Promise<void> {
+        const skills = await this.loadSkillList();
+        if (skills.length === 0) {
+            this.hideMentionDropdown();
+            return;
+        }
+
+        const filtered = skills.filter((s) => {
+            if (!query) return true;
+            return s.name.toLowerCase().includes(query) || s.fullName.toLowerCase().includes(query);
+        });
+
+        if (filtered.length === 0) {
+            this.hideMentionDropdown();
+            return;
+        }
+
+        this.slashMode = true;
+        this.currentMentionRange = { start, end };
+        this.mentionMatches = filtered.map((s) => ({
+            key: `skill:${s.fullName}`,
+            title: s.fullName,
+            content: s.name,
+        }));
+        this.mentionActiveIndex = 0;
+        this.renderMentionDropdown();
+    }
+
     private renderMentionDropdown(): void {
         if (!this.mentionDropdown) return;
 
@@ -1751,11 +1862,15 @@ export class ChatPanel {
             if (index === this.mentionActiveIndex) {
                 item.classList.add('is-active');
             }
-            const isSelected = this.selectedPaperContexts.some((paper) => paper.key === ctx.key) || this.selectedItemContext?.key === ctx.key;
-            if (isSelected) {
-                item.classList.add('is-selected');
+            if (this.slashMode) {
+                item.textContent = `/${ctx.title}`;
+            } else {
+                const isSelected = this.selectedPaperContexts.some((paper) => paper.key === ctx.key) || this.selectedItemContext?.key === ctx.key;
+                if (isSelected) {
+                    item.classList.add('is-selected');
+                }
+                item.textContent = `@${ctx.title}`;
             }
-            item.textContent = `@${ctx.title}`;
             item.addEventListener('mousedown', (e) => {
                 e.preventDefault();
                 this.applyMention(ctx);
@@ -1894,6 +2009,23 @@ export class ChatPanel {
     }
 
     private applyMention(ctx: ContextEntry): void {
+        if (this.slashMode) {
+            if (this.inputTextarea && this.currentMentionRange) {
+                const value = this.inputTextarea.value;
+                const start = this.currentMentionRange.start;
+                const end = this.currentMentionRange.end;
+                const insertion = `/${ctx.title} `;
+                this.inputTextarea.value = value.slice(0, start) + insertion + value.slice(end);
+                const cursor = start + insertion.length;
+                this.inputTextarea.setSelectionRange(cursor, cursor);
+                this.inputTextarea.focus();
+                this.inputTextarea.style.height = 'auto';
+                this.inputTextarea.style.height = `${Math.min(this.inputTextarea.scrollHeight, 220)}px`;
+            }
+            this.hideMentionDropdown();
+            return;
+        }
+
         if (this.inputTextarea && this.currentMentionRange) {
             const value = this.inputTextarea.value;
             const start = this.currentMentionRange.start;
@@ -2036,7 +2168,126 @@ export class ChatPanel {
         this.mentionMatches = [];
         this.currentMentionRange = null;
         this.mentionActiveIndex = 0;
+        this.slashMode = false;
     }
+
+    private async loadSkillList(): Promise<{ name: string; fullName: string }[]> {
+        const now = Date.now();
+        if (this.skillCache.length > 0 && now - this.skillCacheAt < 300000) {
+            return this.skillCache;
+        }
+
+        try {
+            const env = Components.classes['@mozilla.org/process/environment;1']
+                .getService(Components.interfaces.nsIEnvironment);
+            const userProfile = env.get('USERPROFILE') || env.get('HOME') || '';
+            if (!userProfile) return [];
+
+            const sep = userProfile.includes('\\') ? '\\' : '/';
+            const claudeDir = userProfile + sep + '.claude';
+            const skills: { name: string; fullName: string }[] = [];
+            const seen = new Set<string>();
+
+            const addSkill = (name: string, fullName: string): void => {
+                if (!seen.has(fullName)) {
+                    seen.add(fullName);
+                    skills.push({ name, fullName });
+                }
+            };
+
+            // 1. Scan ~/.claude/skills/ (standalone skills)
+            try {
+                const skillsDir = Components.classes['@mozilla.org/file/local;1']
+                    .createInstance(Components.interfaces.nsIFile);
+                skillsDir.initWithPath(claudeDir + sep + 'skills');
+                if (skillsDir.exists() && skillsDir.isDirectory()) {
+                    const entries = skillsDir.directoryEntries;
+                    while (entries.hasMoreElements()) {
+                        const child = entries.getNext().QueryInterface(Components.interfaces.nsIFile);
+                        if (!child.isDirectory() || child.leafName.startsWith('.')) continue;
+                        addSkill(child.leafName, child.leafName);
+                    }
+                }
+            } catch { /* skip */ }
+
+            // 2. Scan plugin skills from installed_plugins.json
+            try {
+                const readFile = (f: any): string => {
+                    const stream = Components.classes['@mozilla.org/network/file-input-stream;1']
+                        .createInstance(Components.interfaces.nsIFileInputStream);
+                    stream.init(f, 0x01, 0, 0);
+                    const sstream = Components.classes['@mozilla.org/scriptableinputstream;1']
+                        .createInstance(Components.interfaces.nsIScriptableInputStream);
+                    sstream.init(stream);
+                    const data = sstream.read(sstream.available());
+                    sstream.close();
+                    stream.close();
+                    return data;
+                };
+
+                const installedFile = Components.classes['@mozilla.org/file/local;1']
+                    .createInstance(Components.interfaces.nsIFile);
+                installedFile.initWithPath(claudeDir + sep + 'plugins' + sep + 'installed_plugins.json');
+                if (installedFile.exists()) {
+                    const installed = JSON.parse(readFile(installedFile));
+                    const plugins = installed?.plugins || {};
+
+                    for (const [pluginKey, entries] of Object.entries(plugins) as [string, any[]][]) {
+                        const entry = Array.isArray(entries) ? entries[0] : entries;
+                        if (!entry?.installPath) continue;
+                        const pluginId = pluginKey.split('@')[0] || '';
+
+                        const installDir = Components.classes['@mozilla.org/file/local;1']
+                            .createInstance(Components.interfaces.nsIFile);
+                        installDir.initWithPath(entry.installPath.replace(/\//g, '\\'));
+                        if (!installDir.exists() || !installDir.isDirectory()) continue;
+
+                        const scanDir = (dir: any, prefix: string): void => {
+                            const dirEntries = dir.directoryEntries;
+                            while (dirEntries.hasMoreElements()) {
+                                const child = dirEntries.getNext().QueryInterface(Components.interfaces.nsIFile);
+                                if (!child.isDirectory() || child.leafName.startsWith('.')) continue;
+                                const name = child.leafName;
+
+                                try {
+                                    const sf = child.clone();
+                                    sf.append('SKILL.md');
+                                    if (sf.exists()) {
+                                        addSkill(name, prefix ? `${prefix}:${name}` : name);
+                                    }
+                                } catch { /* skip */ }
+
+                                // Recurse one level
+                                try {
+                                    const subEntries = child.directoryEntries;
+                                    while (subEntries.hasMoreElements()) {
+                                        const sub = subEntries.getNext().QueryInterface(Components.interfaces.nsIFile);
+                                        if (!sub.isDirectory() || sub.leafName.startsWith('.')) continue;
+                                        try {
+                                            const sf2 = sub.clone();
+                                            sf2.append('SKILL.md');
+                                            if (sf2.exists()) {
+                                                addSkill(sub.leafName, prefix ? `${prefix}:${sub.leafName}` : `${name}:${sub.leafName}`);
+                                            }
+                                        } catch { /* skip */ }
+                                    }
+                                } catch { /* skip */ }
+                            }
+                        };
+
+                        scanDir(installDir, pluginId);
+                    }
+                }
+            } catch { /* skip */ }
+
+            this.skillCache = skills;
+            this.skillCacheAt = now;
+            return skills;
+        } catch {
+            return [];
+        }
+    }
+
     private extractItemContext(item: any): ContextEntry | null {
         if (!item) return null;
 

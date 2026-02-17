@@ -60,15 +60,6 @@ export function parseEnvironmentVariables(text: string): Record<string, string> 
 }
 
 /**
- * Serialize environment variables to a multi-line string.
- */
-export function serializeEnvironmentVariables(vars: Record<string, string>): string {
-    return Object.entries(vars)
-        .map(([key, value]) => `${key}=${value}`)
-        .join('\n');
-}
-
-/**
  * Build model options from environment variables, same behavior as Claudian.
  */
 export function getModelsFromEnvironment(envVars: Record<string, string>): EnvModelOption[] {

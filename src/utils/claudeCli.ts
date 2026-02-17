@@ -97,10 +97,3 @@ export function findClaudeCli(): string | null {
 
     return null;
 }
-
-/**
- * Validate a CLI path exists.
- */
-export function validateCliPath(cliPath: string): boolean {
-    return fileExists(cliPath);
-}

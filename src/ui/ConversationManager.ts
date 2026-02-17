@@ -261,13 +261,4 @@ export class ConversationManager {
             }
         }
     }
-
-    /** Clear all data */
-    clear(): void {
-        this.conversations = [];
-        this.messages.clear();
-        this.activeConversationId = null;
-        this.save();
-    }
 }
-

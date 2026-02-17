@@ -51,12 +51,6 @@ export function loadSettings(): ZeClauSettings {
     };
 }
 
-export function saveSettings(settings: ZeClauSettings): void {
-    for (const [key, value] of Object.entries(settings)) {
-        setPref(key, value);
-    }
-}
-
 export function saveSetting<K extends keyof ZeClauSettings>(
     key: K,
     value: ZeClauSettings[K]

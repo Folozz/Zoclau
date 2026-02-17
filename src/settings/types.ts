@@ -47,16 +47,8 @@ export interface ChatMessage {
     role: 'user' | 'assistant' | 'system';
     content: string;
     timestamp: number;
-    /** Content blocks from SDK streaming */
-    contentBlocks?: ContentBlock[];
     /** Whether this message is still streaming */
     isStreaming?: boolean;
-}
-
-/** Content block types for assistant messages */
-export interface TextBlock {
-    type: 'text';
-    text: string;
 }
 
 export interface ToolUseBlock {
@@ -73,64 +65,6 @@ export interface ToolResultBlock {
     isError?: boolean;
 }
 
-export interface ThinkingBlock {
-    type: 'thinking';
-    thinking: string;
-}
-
-export type ContentBlock = TextBlock | ToolUseBlock | ToolResultBlock | ThinkingBlock;
-
-/** Stream chunk from the Claude Agent SDK */
-export interface StreamChunk {
-    type: string;
-    [key: string]: unknown;
-}
-
-/** Response handler for routing stream chunks */
-export interface ResponseHandler {
-    readonly id: string;
-    onChunk: (chunk: StreamChunk) => void;
-    onDone: () => void;
-    onError: (error: Error) => void;
-    readonly sawStreamText: boolean;
-    readonly sawAnyChunk: boolean;
-    markStreamTextSeen(): void;
-    resetStreamText(): void;
-    markChunkSeen(): void;
-}
-
-export function createResponseHandler(options: {
-    id: string;
-    onChunk: (chunk: StreamChunk) => void;
-    onDone: () => void;
-    onError: (error: Error) => void;
-}): ResponseHandler {
-    let _sawStreamText = false;
-    let _sawAnyChunk = false;
-
-    return {
-        id: options.id,
-        onChunk: options.onChunk,
-        onDone: options.onDone,
-        onError: options.onError,
-        get sawStreamText() { return _sawStreamText; },
-        get sawAnyChunk() { return _sawAnyChunk; },
-        markStreamTextSeen() { _sawStreamText = true; },
-        resetStreamText() { _sawStreamText = false; },
-        markChunkSeen() { _sawAnyChunk = true; },
-    };
-}
-
-/**
- * Model ID mapping for the Claude Agent SDK.
- */
-export const MODEL_MAP: Record<string, string> = {
-    haiku: 'claude-haiku-4-5',
-    sonnet: 'claude-sonnet-4-5',
-    'sonnet-1m': 'claude-sonnet-4-5',
-    opus: 'claude-opus-4',
-};
-
 export const THINKING_BUDGET_MAP: Record<ThinkingBudget, number | null> = {
     off: null,
     low: 1024,
@@ -138,5 +72,3 @@ export const THINKING_BUDGET_MAP: Record<ThinkingBudget, number | null> = {
     high: 10240,
     max: 32768,
 };
-
-
