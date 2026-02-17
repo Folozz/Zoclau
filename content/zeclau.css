@@ -1709,8 +1709,10 @@
 .zeclau-history-row.is-active .zeclau-history-item,
 .zeclau-history-item.is-active,
 .zeclau-history-item:hover {
-  background: #edf4ff !important;
+  background: #c8d9f5 !important;
+  color: #3a6aab !important;
   border-color: transparent !important;
+  font-weight: 500 !important;
 }
 
 .zeclau-history-item-title {
