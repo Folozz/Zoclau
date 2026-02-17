@@ -103,7 +103,7 @@ export class ClaudeService {
         return this.isRunning;
     }
 
-    private buildSystemPrompt(): string {
+    private buildSystemPrompt(skillPrompt?: string): string {
         const parts: string[] = [];
         parts.push(
             'You are Claude, an AI assistant embedded in Zotero (a reference management tool). ' +
@@ -116,13 +116,16 @@ export class ClaudeService {
         if (this.settings.systemPrompt) {
             parts.push(this.settings.systemPrompt);
         }
+        if (skillPrompt) {
+            parts.push(`# Skill Instructions\nFollow these instructions precisely:\n\n${skillPrompt}`);
+        }
         return parts.join('\n\n');
     }
 
     /**
      * Send a message to Claude using Mozilla's Subprocess API.
      */
-    async sendMessage(userMessage: string, conversationId: string): Promise<void> {
+    async sendMessage(userMessage: string, conversationId: string, skillPrompt?: string): Promise<void> {
         if (this.isRunning) {
             log('Already processing a message, skipping');
             return;
@@ -163,7 +166,7 @@ export class ClaudeService {
             this.applyRuntimeEnvironment(gitBashPath);
             args.push('--setting-sources', 'user,project');
 
-            const systemPrompt = this.buildSystemPrompt();
+            const systemPrompt = this.buildSystemPrompt(skillPrompt);
             if (systemPrompt) {
                 args.push('--system-prompt', systemPrompt);
             }
@@ -333,10 +336,18 @@ export class ClaudeService {
             const stderrPromise = readStderrLoop();
 
             // Wait for process exit first; pipe draining must not block forever.
-            const processTimeoutMs = 180000;
+            const inactivityLimitMs = 180000;
             const waitResult: any = await Promise.race([
                 proc.wait().then((result: any) => ({ timeout: false, exitCode: result.exitCode })),
-                new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), processTimeoutMs)),
+                new Promise<{ timeout: boolean }>((resolve) => {
+                    const check = setInterval(() => {
+                        if (Date.now() - lastActivityAt > inactivityLimitMs) {
+                            clearInterval(check);
+                            resolve({ timeout: true });
+                        }
+                    }, 5000);
+                    proc.wait().then(() => clearInterval(check)).catch(() => clearInterval(check));
+                }),
             ]);
 
             if (waitResult.timeout) {
@@ -346,7 +357,7 @@ export class ClaudeService {
                     // ignore
                 }
                 const idleSeconds = Math.floor((Date.now() - lastActivityAt) / 1000);
-                throw new Error(`Claude CLI timed out after ${Math.floor(processTimeoutMs / 1000)}s without completing (last activity ${idleSeconds}s ago).`);
+                throw new Error(`Claude CLI timed out after ${idleSeconds}s of inactivity.`);
             }
 
             const exitCode = Number(waitResult.exitCode ?? -1);

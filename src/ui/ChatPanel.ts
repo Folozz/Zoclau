@@ -668,7 +668,7 @@ export class ChatPanel {
         this.historyActiveIndex = -1;
         // Position above input area, aligned to input area width
         const inputEl = this.container.querySelector('.zeclau-input-area') as HTMLElement | null;
-        const bottomPx = inputEl ? inputEl.getBoundingClientRect().height + 12 : 60;
+        const bottomPx = inputEl ? inputEl.getBoundingClientRect().height + 16 : 60;
         this.historyMenu.style.position = 'absolute';
         this.historyMenu.style.bottom = `${bottomPx}px`;
         this.historyMenu.style.zIndex = '52';
@@ -1066,8 +1066,8 @@ export class ChatPanel {
             }
         }
 
-        const enriched = this.buildPromptWithContexts(text);
-        await this.service.sendMessage(enriched, convId);
+        const { prompt: enriched, skillPrompt } = this.buildPromptWithContexts(text);
+        await this.service.sendMessage(enriched, convId, skillPrompt || undefined);
     }
 
     private deriveConversationTopic(text: string): string {
@@ -1294,7 +1294,7 @@ export class ChatPanel {
         }
     }
 
-    private buildPromptWithContexts(userText: string): string {
+    private buildPromptWithContexts(userText: string): { prompt: string; skillPrompt: string } {
         const mentionRegex = /@\[([^\]]+)\]/g;
         const titles: string[] = [];
         let match: RegExpExecArray | null;
@@ -1311,6 +1311,20 @@ export class ChatPanel {
             .replace(/(?:^|\s)@[^\s@\]]+/g, ' ')
             .replace(/\s+/g, ' ')
             .trim();
+
+        // Detect /skill-name and load SKILL.md content
+        const skillMatch = cleanText.match(/^\/(\S+)(?:\s+(.*))?$/);
+        let skillPrompt = '';
+        let userPrompt = cleanText;
+        if (skillMatch) {
+            const skillName = skillMatch[1];
+            const skillArgs = (skillMatch[2] || '').trim();
+            const skillContent = this.loadSkillContent(skillName);
+            if (skillContent) {
+                skillPrompt = skillContent;
+                userPrompt = skillArgs || `Execute the /${skillName} skill.`;
+            }
+        }
 
         const sections: string[] = [];
 
@@ -1345,10 +1359,10 @@ export class ChatPanel {
         }
 
         if (sections.length === 0) {
-            return cleanText || userText;
+            return { prompt: userPrompt || userText, skillPrompt };
         }
 
-        return `${cleanText || userText}\n\n---\n${sections.join('\n\n')}\n---`;
+        return { prompt: `${userPrompt || userText}\n\n---\n${sections.join('\n\n')}\n---`, skillPrompt };
     }
 
     private buildLocalFileContextSection(): string | null {
@@ -2158,6 +2172,69 @@ export class ChatPanel {
     private truncateText(text: string, max: number): string {
         if (text.length <= max) return text;
         return `${text.slice(0, Math.max(0, max - 1))}…`;
+    }
+
+    private loadSkillContent(skillName: string): string | null {
+        try {
+            const env = Components.classes['@mozilla.org/process/environment;1']
+                .getService(Components.interfaces.nsIEnvironment);
+            const userProfile = env.get('USERPROFILE') || env.get('HOME') || '';
+            if (!userProfile) return null;
+
+            const sep = userProfile.includes('\\') ? '\\' : '/';
+            const readFile = (path: string): string | null => {
+                try {
+                    const f = Components.classes['@mozilla.org/file/local;1']
+                        .createInstance(Components.interfaces.nsIFile);
+                    f.initWithPath(path);
+                    if (!f.exists()) return null;
+                    const stream = Components.classes['@mozilla.org/network/file-input-stream;1']
+                        .createInstance(Components.interfaces.nsIFileInputStream);
+                    stream.init(f, 0x01, 0, 0);
+                    const sstream = Components.classes['@mozilla.org/scriptableinputstream;1']
+                        .createInstance(Components.interfaces.nsIScriptableInputStream);
+                    sstream.init(stream);
+                    const data = sstream.read(sstream.available());
+                    sstream.close();
+                    stream.close();
+                    return data;
+                } catch { return null; }
+            };
+
+            // 1. Check ~/.claude/skills/<name>/SKILL.md
+            const standalonePath = userProfile + sep + '.claude' + sep + 'skills' + sep + skillName + sep + 'SKILL.md';
+            Zotero.debug(`[Zoclau] loadSkillContent: trying ${standalonePath}`);
+            const standaloneSkill = readFile(standalonePath);
+            if (standaloneSkill) {
+                Zotero.debug(`[Zoclau] loadSkillContent: found standalone skill (${standaloneSkill.length} chars)`);
+                return standaloneSkill;
+            }
+
+            // 2. Check plugin skills: search cached skill list for matching name
+            const match = this.skillCache.find((s) => s.name === skillName || s.fullName === skillName);
+            if (match) {
+                // Resolve from installed_plugins.json
+                const installedPath = userProfile + sep + '.claude' + sep + 'plugins' + sep + 'installed_plugins.json';
+                const installedJson = readFile(installedPath);
+                if (installedJson) {
+                    const installed = JSON.parse(installedJson);
+                    for (const entries of Object.values(installed?.plugins || {}) as any[][]) {
+                        const entry = Array.isArray(entries) ? entries[0] : entries;
+                        if (!entry?.installPath) continue;
+                        // Try direct path with fullName (e.g. scientific-skills/rdkit)
+                        const parts = match.fullName.split(':');
+                        const skillDir = parts.length > 1 ? parts.join(sep) : match.name;
+                        const content = readFile(entry.installPath.replace(/\//g, sep) + sep + skillDir + sep + 'SKILL.md');
+                        if (content) return content;
+                    }
+                }
+            }
+
+            Zotero.debug(`[Zoclau] loadSkillContent: skill '${skillName}' not found`);
+            return null;
+        } catch {
+            return null;
+        }
     }
 
     private hideMentionDropdown(): void {
