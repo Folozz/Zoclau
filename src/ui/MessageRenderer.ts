@@ -1,4 +1,4 @@
-﻿/**
+/**
  * MessageRenderer - Renders chat messages to HTML.
  * Handles user/assistant messages, tool use blocks, code blocks, and streaming.
  */
@@ -58,14 +58,14 @@ export interface RenderErrorOptions {
  */
 export function renderMessage(message: ChatMessage, doc: Document, options?: RenderMessageOptions): HTMLElement {
     const wrapper = doc.createElement('div');
-    wrapper.className = `zeclau-message zeclau-message-${message.role}`;
+    wrapper.className = `zoclau-message zoclau-message-${message.role}`;
     wrapper.setAttribute('data-message-id', message.id);
 
     const textBlock = doc.createElement('div');
-    textBlock.className = 'zeclau-text-block';
+    textBlock.className = 'zoclau-text-block';
 
     const contentEl = doc.createElement('div');
-    contentEl.className = 'zeclau-message-content';
+    contentEl.className = 'zoclau-message-content';
 
     if (message.role === 'user') {
         contentEl.textContent = message.content;
@@ -77,7 +77,7 @@ export function renderMessage(message: ChatMessage, doc: Document, options?: Ren
 
     if (message.role === 'assistant' && !message.isStreaming) {
         const copyBtn = doc.createElement('button');
-        copyBtn.className = 'zeclau-text-copy-btn';
+        copyBtn.className = 'zoclau-text-copy-btn';
         copyBtn.type = 'button';
         copyBtn.appendChild(createCopyIcon(doc));
         copyBtn.addEventListener('click', async () => {
@@ -92,7 +92,7 @@ export function renderMessage(message: ChatMessage, doc: Document, options?: Ren
 
     if (message.isStreaming) {
         const indicator = doc.createElement('span');
-        indicator.className = 'zeclau-streaming-indicator';
+        indicator.className = 'zoclau-streaming-indicator';
         indicator.textContent = '...';
         contentEl.appendChild(indicator);
     }
@@ -101,10 +101,10 @@ export function renderMessage(message: ChatMessage, doc: Document, options?: Ren
 
     if (message.role === 'user') {
         const actions = doc.createElement('div');
-        actions.className = 'zeclau-user-msg-actions';
+        actions.className = 'zoclau-user-msg-actions';
 
         const copyBtn = doc.createElement('button');
-        copyBtn.className = 'zeclau-user-msg-action';
+        copyBtn.className = 'zoclau-user-msg-action';
         copyBtn.type = 'button';
         copyBtn.appendChild(createCopyIcon(doc));
         copyBtn.title = '复制';
@@ -129,19 +129,19 @@ export function renderMessage(message: ChatMessage, doc: Document, options?: Ren
  */
 export function renderToolUse(block: ToolUseBlock, doc: Document): HTMLElement {
     const wrapper = doc.createElement('div');
-    wrapper.className = 'zeclau-tool-use zeclau-tool-call';
+    wrapper.className = 'zoclau-tool-use zoclau-tool-call';
     wrapper.setAttribute('data-tool-id', block.id);
 
     const header = doc.createElement('div');
-    header.className = 'zeclau-tool-header';
+    header.className = 'zoclau-tool-header';
 
     const name = doc.createElement('span');
-    name.className = 'zeclau-tool-name';
+    name.className = 'zoclau-tool-name';
     name.textContent = block.name;
     header.appendChild(name);
 
     const status = doc.createElement('span');
-    status.className = 'zeclau-tool-status zeclau-tool-status-running';
+    status.className = 'zoclau-tool-status zoclau-tool-status-running';
     status.textContent = '运行中';
     header.appendChild(status);
 
@@ -149,12 +149,12 @@ export function renderToolUse(block: ToolUseBlock, doc: Document): HTMLElement {
 
     if (block.input) {
         const toggle = doc.createElement('button');
-        toggle.className = 'zeclau-tool-toggle';
+        toggle.className = 'zoclau-tool-toggle';
         toggle.type = 'button';
         toggle.textContent = '显示输入';
 
         const inputEl = doc.createElement('pre');
-        inputEl.className = 'zeclau-tool-input';
+        inputEl.className = 'zoclau-tool-input';
         inputEl.textContent = typeof block.input === 'string'
             ? block.input
             : JSON.stringify(block.input, null, 2);
@@ -178,19 +178,19 @@ export function renderToolUse(block: ToolUseBlock, doc: Document): HTMLElement {
  */
 export function renderToolResult(block: ToolResultBlock, doc: Document): HTMLElement {
     const wrapper = doc.createElement('div');
-    wrapper.className = `zeclau-tool-result zeclau-tool-call ${block.isError ? 'zeclau-tool-error' : ''}`;
+    wrapper.className = `zoclau-tool-result zoclau-tool-call ${block.isError ? 'zoclau-tool-error' : ''}`;
 
     const row = doc.createElement('div');
-    row.className = 'zeclau-tool-result-row';
+    row.className = 'zoclau-tool-result-row';
 
     const label = doc.createElement('span');
-    label.className = `zeclau-tool-result-label ${block.isError ? 'zeclau-tool-status-error' : 'zeclau-tool-status-completed'}`;
+    label.className = `zoclau-tool-result-label ${block.isError ? 'zoclau-tool-status-error' : 'zoclau-tool-status-completed'}`;
     label.textContent = block.isError ? '错误' : '完成';
     row.appendChild(label);
 
     if (block.content) {
         const content = doc.createElement('pre');
-        content.className = 'zeclau-tool-result-text';
+        content.className = 'zoclau-tool-result-text';
         content.textContent = block.content.length > 1200
             ? block.content.substring(0, 1200) + '...'
             : block.content;
@@ -206,10 +206,10 @@ export function renderToolResult(block: ToolResultBlock, doc: Document): HTMLEle
  */
 export function renderError(error: string, doc: Document, options?: RenderErrorOptions): HTMLElement {
     const wrapper = doc.createElement('div');
-    wrapper.className = 'zeclau-error';
+    wrapper.className = 'zoclau-error';
 
     const text = doc.createElement('span');
-    text.className = 'zeclau-error-text';
+    text.className = 'zoclau-error-text';
     // Insert zero-width spaces every 40 chars to allow line breaking on long unbreakable strings
     const errorText = `错误：${error}`.replace(/(.{40})/g, '$1\u200B');
     text.textContent = errorText;
@@ -217,7 +217,7 @@ export function renderError(error: string, doc: Document, options?: RenderErrorO
 
     if (options?.onRetry) {
         const retryBtn = doc.createElement('button');
-        retryBtn.className = 'zeclau-error-retry';
+        retryBtn.className = 'zoclau-error-retry';
         retryBtn.type = 'button';
         retryBtn.textContent = '重试';
         retryBtn.addEventListener('click', (e) => {
@@ -238,11 +238,11 @@ export function updateStreamingMessage(
     content: string,
     doc: Document,
 ): void {
-    const contentEl = messageEl.querySelector('.zeclau-message-content');
+    const contentEl = messageEl.querySelector('.zoclau-message-content');
     if (contentEl) {
         contentEl.innerHTML = markdownToHtml(content);
         const indicator = doc.createElement('span');
-        indicator.className = 'zeclau-streaming-indicator';
+        indicator.className = 'zoclau-streaming-indicator';
         indicator.textContent = '...';
         contentEl.appendChild(indicator);
     }

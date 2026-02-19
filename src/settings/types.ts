@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Zoclau settings type definitions.
  */
 
@@ -6,7 +6,7 @@ export type ClaudeModel = 'auto' | 'haiku' | 'sonnet' | 'sonnet-1m' | 'opus' | s
 export type ThinkingBudget = 'off' | 'low' | 'medium' | 'high' | 'max';
 export type PermissionMode = 'yolo' | 'plan' | 'normal';
 
-export interface ZeClauSettings {
+export interface ZoclauSettings {
     userName: string;
     model: ClaudeModel;
     thinkingBudget: ThinkingBudget;
@@ -19,7 +19,7 @@ export interface ZeClauSettings {
     enableBlocklist: boolean;
 }
 
-export const DEFAULT_SETTINGS: ZeClauSettings = {
+export const DEFAULT_SETTINGS: ZoclauSettings = {
     userName: '',
     model: 'auto',
     thinkingBudget: 'off',

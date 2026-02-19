@@ -15,10 +15,10 @@ var loadedWindows = new WeakSet();
 
 function install(data, reason) { }
 
-function zeclauLog(message) {
+function zoclauLog(message) {
     try {
         var file = Services.dirsvc.get("ProfD", Components.interfaces.nsIFile);
-        file.append("zeclau-debug.log");
+        file.append("zoclau-debug.log");
 
         var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
             .createInstance(Components.interfaces.nsIFileOutputStream);
@@ -49,20 +49,26 @@ function formatError(err) {
     }
 }
 
+function getPluginModule() {
+    if (!Zotero) return null;
+    return Zotero.Zoclau || Zotero.ZeClau || null;
+}
+
 function handleWindowLoad(window, reason) {
     if (!window) return;
     if (loadedWindows.has(window)) return;
     loadedWindows.add(window);
-    if (Zotero.ZeClau && Zotero.ZeClau.onMainWindowLoad) {
-        Zotero.ZeClau.onMainWindowLoad(window);
-        zeclauLog("onMainWindowLoad handler executed (manual)");
+    var plugin = getPluginModule();
+    if (plugin && plugin.onMainWindowLoad) {
+        plugin.onMainWindowLoad(window);
+        zoclauLog("onMainWindowLoad handler executed (manual)");
     } else {
-        zeclauLog("onMainWindowLoad skipped (missing handler, manual)");
+        zoclauLog("onMainWindowLoad skipped (missing handler, manual)");
     }
 }
 
 async function startup({ id, version, resourceURI, rootURI }, reason) {
-    zeclauLog("startup begin reason=" + reason + " rootURI=" + rootURI);
+    zoclauLog("startup begin reason=" + reason + " rootURI=" + rootURI);
     try {
         // Register chrome so we can use chrome:// URIs for content
         var aomStartup = Components.classes[
@@ -70,20 +76,29 @@ async function startup({ id, version, resourceURI, rootURI }, reason) {
         ].getService(Components.interfaces.amIAddonManagerStartup);
         var manifestURI = Services.io.newURI(rootURI + "manifest.json");
         chromeHandle = aomStartup.registerChrome(manifestURI, [
-            ["content", "zeclau", rootURI + "content/"],
+            ["content", "zoclau", rootURI + "content/"],
         ]);
-        zeclauLog("startup chrome registered");
+        zoclauLog("startup chrome registered");
 
         // Load the main plugin script through chrome:// for packed/unpacked compatibility
-        Services.scriptloader.loadSubScript("chrome://zeclau/content/zeclau.js");
-        zeclauLog("startup subscript loaded, has Zotero.ZeClau=" + !!(Zotero && Zotero.ZeClau));
+        Services.scriptloader.loadSubScript("chrome://zoclau/content/zoclau.js");
+        if (Zotero && Zotero.Zoclau && !Zotero.ZeClau) {
+            Zotero.ZeClau = Zotero.Zoclau;
+        }
+        var plugin = getPluginModule();
+        zoclauLog(
+            "startup subscript loaded, has Zotero.Zoclau=" +
+            !!(Zotero && Zotero.Zoclau) +
+            " has Zotero.ZeClau=" +
+            !!(Zotero && Zotero.ZeClau)
+        );
 
         // Initialize plugin (non-window tasks: register prefs, detect CLI, etc.)
-        if (Zotero.ZeClau && Zotero.ZeClau.init) {
-            await Zotero.ZeClau.init({ id, version, rootURI });
-            zeclauLog("startup init completed");
+        if (plugin && plugin.init) {
+            await plugin.init({ id, version, rootURI });
+            zoclauLog("startup init completed");
         } else {
-            zeclauLog("startup init skipped (missing Zotero.ZeClau.init)");
+            zoclauLog("startup init skipped (missing plugin.init)");
         }
 
         // At app startup, the main window can already be open before this addon finishes loading.
@@ -95,65 +110,68 @@ async function startup({ id, version, resourceURI, rootURI }, reason) {
                 handleWindowLoad(win, reason);
             }
         } catch (e2) {
-            zeclauLog("startup existing-window pass failed: " + formatError(e2));
+            zoclauLog("startup existing-window pass failed: " + formatError(e2));
         }
     } catch (e) {
-        zeclauLog("startup error: " + formatError(e));
+        zoclauLog("startup error: " + formatError(e));
         throw e;
     }
 }
 
 // Called automatically by Zotero 7 when the main window is loaded
 async function onMainWindowLoad({ window }, reason) {
-    zeclauLog("onMainWindowLoad reason=" + reason);
+    zoclauLog("onMainWindowLoad reason=" + reason);
     try {
         handleWindowLoad(window, reason);
     } catch (e) {
-        zeclauLog("onMainWindowLoad error: " + formatError(e));
+        zoclauLog("onMainWindowLoad error: " + formatError(e));
         throw e;
     }
 }
 
 // Called automatically by Zotero 7 when the main window is unloaded
 async function onMainWindowUnload({ window }, reason) {
-    zeclauLog("onMainWindowUnload reason=" + reason);
+    zoclauLog("onMainWindowUnload reason=" + reason);
     try {
         if (window && loadedWindows.has(window)) {
             loadedWindows.delete(window);
         }
-        if (Zotero.ZeClau && Zotero.ZeClau.onMainWindowUnload) {
-            Zotero.ZeClau.onMainWindowUnload(window);
-            zeclauLog("onMainWindowUnload handler executed");
+        var plugin = getPluginModule();
+        if (plugin && plugin.onMainWindowUnload) {
+            plugin.onMainWindowUnload(window);
+            zoclauLog("onMainWindowUnload handler executed");
         } else {
-            zeclauLog("onMainWindowUnload skipped (missing handler)");
+            zoclauLog("onMainWindowUnload skipped (missing handler)");
         }
     } catch (e) {
-        zeclauLog("onMainWindowUnload error: " + formatError(e));
+        zoclauLog("onMainWindowUnload error: " + formatError(e));
         throw e;
     }
 }
 
 async function shutdown({ id, version, resourceURI, rootURI }, reason) {
-    zeclauLog("shutdown begin reason=" + reason);
+    zoclauLog("shutdown begin reason=" + reason);
     if (reason === APP_SHUTDOWN) {
         return;
     }
 
     try {
-        if (Zotero.ZeClau && Zotero.ZeClau.shutdown) {
-            Zotero.ZeClau.shutdown();
-            zeclauLog("shutdown handler executed");
+        var plugin = getPluginModule();
+        if (plugin && plugin.shutdown) {
+            plugin.shutdown();
+            zoclauLog("shutdown handler executed");
         }
 
+        Zotero.Zoclau = undefined;
         Zotero.ZeClau = undefined;
 
         if (chromeHandle) {
             chromeHandle.destruct();
             chromeHandle = null;
-            zeclauLog("shutdown chrome handle destructed");
+            zoclauLog("shutdown chrome handle destructed");
         }
     } catch (e) {
-        zeclauLog("shutdown error: " + formatError(e));
+        zoclauLog("shutdown error: " + formatError(e));
         throw e;
     }
 }

@@ -30,7 +30,7 @@ export function markdownToHtml(markdown: string): string {
         if (line.trimStart().startsWith('```')) {
             if (inCodeBlock) {
                 // End code block
-                html += `<pre class="zeclau-code-block"><code class="language-${escapeHtml(codeLanguage)}">${escapeHtml(codeContent.trimEnd())}</code></pre>\n`;
+                html += `<pre class="zoclau-code-block"><code class="language-${escapeHtml(codeLanguage)}">${escapeHtml(codeContent.trimEnd())}</code></pre>\n`;
                 inCodeBlock = false;
                 codeContent = '';
                 codeLanguage = '';
@@ -69,7 +69,7 @@ export function markdownToHtml(markdown: string): string {
             }
             const level = headingMatch[1].length;
             const text = formatInline(headingMatch[2]);
-            html += `<h${level} class="zeclau-heading">${text}</h${level}>\n`;
+            html += `<h${level} class="zoclau-heading">${text}</h${level}>\n`;
             continue;
         }
 
@@ -77,7 +77,7 @@ export function markdownToHtml(markdown: string): string {
         const listMatch = line.match(/^(\s*)[-*+]\s+(.+)/);
         if (listMatch) {
             if (!inList) {
-                html += '<ul class="zeclau-list">\n';
+                html += '<ul class="zoclau-list">\n';
                 inList = true;
             }
             html += `<li>${formatInline(listMatch[2])}</li>\n`;
@@ -88,7 +88,7 @@ export function markdownToHtml(markdown: string): string {
         const olMatch = line.match(/^(\s*)\d+\.\s+(.+)/);
         if (olMatch) {
             if (!inList) {
-                html += '<ul class="zeclau-list zeclau-list-ordered">\n';
+                html += '<ul class="zoclau-list zoclau-list-ordered">\n';
                 inList = true;
             }
             html += `<li>${formatInline(olMatch[2])}</li>\n`;
@@ -105,7 +105,7 @@ export function markdownToHtml(markdown: string): string {
 
     // Close any open elements
     if (inCodeBlock) {
-        html += `<pre class="zeclau-code-block"><code>${escapeHtml(codeContent.trimEnd())}</code></pre>\n`;
+        html += `<pre class="zoclau-code-block"><code>${escapeHtml(codeContent.trimEnd())}</code></pre>\n`;
     }
     if (inList) {
         html += '</ul>\n';
@@ -119,7 +119,7 @@ function formatInline(text: string): string {
     let result = escapeHtml(text);
 
     // Inline code (must be before bold/italic to avoid conflicts)
-    result = result.replace(/`([^`]+)`/g, '<code class="zeclau-inline-code">$1</code>');
+    result = result.replace(/`([^`]+)`/g, '<code class="zoclau-inline-code">$1</code>');
 
     // Bold
     result = result.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
@@ -132,7 +132,7 @@ function formatInline(text: string): string {
     // Links
     result = result.replace(
         /\[([^\]]+)\]\(([^)]+)\)/g,
-        '<a href="$2" class="zeclau-link" target="_blank">$1</a>'
+        '<a href="$2" class="zoclau-link" target="_blank">$1</a>'
     );
 
     return result;

@@ -4,24 +4,24 @@
  */
 
 :root {
-  --zeclau-bg: #f4f6fb;
-  --zeclau-surface: #ffffff;
-  --zeclau-surface-soft: #edf2fb;
-  --zeclau-text: #1f2d45;
-  --zeclau-muted: #66758f;
-  --zeclau-border: #d5deef;
-  --zeclau-accent: #2f66e0;
-  --zeclau-accent-soft: #e8f0ff;
-  --zeclau-accent-strong: #1d4ed8;
-  --zeclau-danger: #dc2626;
-  --zeclau-success: #16a34a;
-  --zeclau-shadow: 0 10px 28px rgba(32, 56, 96, 0.12);
-  --zeclau-font: 'IBM Plex Sans', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --zeclau-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+  --zoclau-bg: #f4f6fb;
+  --zoclau-surface: #ffffff;
+  --zoclau-surface-soft: #edf2fb;
+  --zoclau-text: #1f2d45;
+  --zoclau-muted: #66758f;
+  --zoclau-border: #d5deef;
+  --zoclau-accent: #2f66e0;
+  --zoclau-accent-soft: #e8f0ff;
+  --zoclau-accent-strong: #1d4ed8;
+  --zoclau-danger: #dc2626;
+  --zoclau-success: #16a34a;
+  --zoclau-shadow: 0 10px 28px rgba(32, 56, 96, 0.12);
+  --zoclau-font: 'IBM Plex Sans', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --zoclau-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
 }
 
 /* ---------- Root Canvas ---------- */
-#zeclau-itempane-root {
+#zoclau-itempane-root {
   height: 100% !important;
   max-height: 100% !important;
   min-height: 0 !important;
@@ -30,29 +30,29 @@
   width: 100% !important;
 }
 
-#zeclau-itempane-root > .zeclau-panel.zeclau-panel-embedded {
+#zoclau-itempane-root > .zoclau-panel.zoclau-panel-embedded {
   height: 100% !important;
   max-height: 100% !important;
   overflow: hidden !important;
   max-width: 100% !important;
 }
 
-.zeclau-panel {
+.zoclau-panel {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
   min-height: 0;
-  font-family: var(--zeclau-font);
-  color: var(--zeclau-text);
+  font-family: var(--zoclau-font);
+  color: var(--zoclau-text);
 }
 
-.zeclau-panel-embedded {
+.zoclau-panel-embedded {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   row-gap: 2px;
   padding: 8px 8px 8px 6px;
   margin-right: 6px;
-  border: 1px solid var(--zeclau-border);
+  border: 1px solid var(--zoclau-border);
   border-radius: 14px;
   background: radial-gradient(circle at 100% -10%, #eef4ff 0%, #f6f8fd 34%, #f6f8fd 100%);
   overflow: hidden;
@@ -60,13 +60,13 @@
 }
 
 /* Keep the legacy floating widgets disabled */
-.zeclau-toggle-btn,
-.zeclau-sidebar {
+.zoclau-toggle-btn,
+.zoclau-sidebar {
   display: none !important;
 }
 
 /* ---------- Messages ---------- */
-.zeclau-messages-wrapper {
+.zoclau-messages-wrapper {
   position: relative;
   min-height: 0;
   min-width: 0;
@@ -78,7 +78,7 @@
   border-radius: 0;
 }
 
-.zeclau-messages {
+.zoclau-messages {
   height: 100%;
   min-height: 0;
   min-width: 0;
@@ -93,16 +93,16 @@
   gap: 12px;
 }
 
-.zeclau-messages::-webkit-scrollbar {
+.zoclau-messages::-webkit-scrollbar {
   width: 6px;
 }
 
-.zeclau-messages::-webkit-scrollbar-thumb {
+.zoclau-messages::-webkit-scrollbar-thumb {
   border-radius: 999px;
   background: #c8d3ea;
 }
 
-.zeclau-welcome {
+.zoclau-welcome {
   flex: 1;
   min-height: 180px;
   display: flex;
@@ -113,14 +113,14 @@
   padding: 8px 14px;
 }
 
-.zeclau-welcome-title {
+.zoclau-welcome-title {
   font-size: 26px;
   font-weight: 500;
   letter-spacing: 0.01em;
   color: #1f4a91;
 }
 
-.zeclau-welcome-subtitle {
+.zoclau-welcome-subtitle {
   margin-top: 10px;
   max-width: 360px;
   font-size: 11px;
@@ -132,21 +132,21 @@
   margin-right: auto;
 }
 
-.zeclau-welcome-actions {
+.zoclau-welcome-actions {
   display: none !important;
 }
 
 /* ---------- Messages Bubble/Layout ---------- */
-.zeclau-message {
+.zoclau-message {
   position: relative;
   max-width: 90% !important;
   min-width: 0 !important;
   overflow-wrap: anywhere !important;
   box-sizing: border-box !important;
-  animation: zeclau-fade-in 0.15s ease;
+  animation: zoclau-fade-in 0.15s ease;
 }
 
-@keyframes zeclau-fade-in {
+@keyframes zoclau-fade-in {
   from {
     opacity: 0;
     transform: translateY(4px);
@@ -157,7 +157,7 @@
   }
 }
 
-.zeclau-message-user {
+.zoclau-message-user {
   align-self: flex-end;
   background: #e7efff;
   border: 1px solid #c9dafb;
@@ -169,7 +169,7 @@
 }
 
 /* Assistant response bubble style (rollback) */
-.zeclau-message-assistant {
+.zoclau-message-assistant {
   align-self: flex-start;
   background: transparent;
   border: none;
@@ -179,12 +179,12 @@
   max-width: min(88%, 64ch);
 }
 
-.zeclau-text-block {
+.zoclau-text-block {
   position: relative;
 }
 
-.zeclau-message-content {
-  color: var(--zeclau-text);
+.zoclau-message-content {
+  color: var(--zoclau-text);
   line-height: 1.68;
   font-size: 11px;
   user-select: text;
@@ -194,31 +194,31 @@
   white-space: normal !important;
 }
 
-.zeclau-message-content p {
+.zoclau-message-content p {
   margin: 0 0 9px;
 }
 
-.zeclau-message-content p:last-child {
+.zoclau-message-content p:last-child {
   margin-bottom: 0;
 }
 
-.zeclau-message-content ul,
-.zeclau-message-content ol {
+.zoclau-message-content ul,
+.zoclau-message-content ol {
   margin: 0 0 9px 20px;
   padding: 0;
   list-style-image: none;
 }
 
-.zeclau-message-content li {
+.zoclau-message-content li {
   margin: 4px 0;
 }
 
-.zeclau-message-content pre,
-.zeclau-message-content code {
-  font-family: var(--zeclau-mono);
+.zoclau-message-content pre,
+.zoclau-message-content code {
+  font-family: var(--zoclau-mono);
 }
 
-.zeclau-message-content pre {
+.zoclau-message-content pre {
   margin: 8px 0;
   padding: 8px 10px;
   background: #eef3fc;
@@ -229,14 +229,14 @@
   line-height: 1.45;
 }
 
-.zeclau-message-content code {
+.zoclau-message-content code {
   background: #eff3fa;
   border-radius: 6px;
   padding: 1px 4px;
   font-size: 12px;
 }
 
-.zeclau-text-copy-btn {
+.zoclau-text-copy-btn {
   position: absolute;
   right: -4px;
   bottom: -24px;
@@ -249,12 +249,12 @@
   transition: opacity 0.14s ease;
 }
 
-.zeclau-text-block:hover .zeclau-text-copy-btn,
-.zeclau-text-copy-btn:focus-visible {
+.zoclau-text-block:hover .zoclau-text-copy-btn,
+.zoclau-text-copy-btn:focus-visible {
   opacity: 1;
 }
 
-.zeclau-user-msg-actions {
+.zoclau-user-msg-actions {
   position: absolute;
   right: 4px;
   bottom: -26px;
@@ -264,12 +264,12 @@
   transition: opacity 0.14s ease;
 }
 
-.zeclau-message-user:hover .zeclau-user-msg-actions,
-.zeclau-user-msg-actions:focus-within {
+.zoclau-message-user:hover .zoclau-user-msg-actions,
+.zoclau-user-msg-actions:focus-within {
   opacity: 1;
 }
 
-.zeclau-user-msg-action {
+.zoclau-user-msg-action {
   border: none;
   background: transparent;
   color: #657ea8;
@@ -278,18 +278,18 @@
   padding: 0;
 }
 
-.zeclau-user-msg-action:hover {
+.zoclau-user-msg-action:hover {
   color: #2f4d82;
 }
 
-.zeclau-streaming-indicator {
+.zoclau-streaming-indicator {
   display: inline-block;
   margin-left: 4px;
   color: #3b6fd9;
-  animation: zeclau-pulse 1.1s ease-in-out infinite;
+  animation: zoclau-pulse 1.1s ease-in-out infinite;
 }
 
-@keyframes zeclau-pulse {
+@keyframes zoclau-pulse {
   0%,
   100% {
     opacity: 1;
@@ -300,7 +300,7 @@
 }
 
 /* ---------- Tool Events ---------- */
-.zeclau-tool-group {
+.zoclau-tool-group {
   align-self: flex-start;
   max-width: 100%;
   width: fit-content;
@@ -315,20 +315,20 @@
   word-wrap: break-word;
 }
 
-.zeclau-tool-group-header {
+.zoclau-tool-group-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
 }
 
-.zeclau-tool-group-label {
-  font-family: var(--zeclau-mono);
+.zoclau-tool-group-label {
+  font-family: var(--zoclau-mono);
   font-size: 11px;
-  color: var(--zeclau-muted);
+  color: var(--zoclau-muted);
 }
 
-.zeclau-tool-group-toggle {
+.zoclau-tool-group-toggle {
   border: none;
   background: transparent;
   color: #4f6ea3;
@@ -337,7 +337,7 @@
   padding: 0;
 }
 
-.zeclau-tool-group-body > .zeclau-tool-call {
+.zoclau-tool-group-body > .zoclau-tool-call {
   border: none;
   border-radius: 0;
   background: transparent;
@@ -346,13 +346,13 @@
   width: auto;
 }
 
-.zeclau-tool-group-body > .zeclau-tool-call + .zeclau-tool-call {
+.zoclau-tool-group-body > .zoclau-tool-call + .zoclau-tool-call {
   border-top: 1px solid #e8edf6;
   padding-top: 6px;
   margin-top: 6px;
 }
 
-.zeclau-tool-call {
+.zoclau-tool-call {
   align-self: flex-start;
   max-width: 100%;
   width: fit-content;
@@ -364,32 +364,32 @@
   word-wrap: break-word;
 }
 
-.zeclau-tool-header {
+.zoclau-tool-header {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.zeclau-tool-name,
-.zeclau-tool-status,
-.zeclau-tool-result-label {
-  font-family: var(--zeclau-mono);
+.zoclau-tool-name,
+.zoclau-tool-status,
+.zoclau-tool-result-label {
+  font-family: var(--zoclau-mono);
   font-size: 11px;
 }
 
-.zeclau-tool-status-running {
+.zoclau-tool-status-running {
   color: #2f66e0;
 }
 
-.zeclau-tool-status-completed {
-  color: var(--zeclau-success);
+.zoclau-tool-status-completed {
+  color: var(--zoclau-success);
 }
 
-.zeclau-tool-status-error {
-  color: var(--zeclau-danger);
+.zoclau-tool-status-error {
+  color: var(--zoclau-danger);
 }
 
-.zeclau-tool-toggle {
+.zoclau-tool-toggle {
   margin-top: 6px;
   border: none;
   background: transparent;
@@ -399,8 +399,8 @@
   padding: 0;
 }
 
-.zeclau-tool-input,
-.zeclau-tool-result-text {
+.zoclau-tool-input,
+.zoclau-tool-result-text {
   margin-top: 6px;
   border: 1px solid #d8e1f2;
   border-radius: 8px;
@@ -418,7 +418,7 @@
 }
 
 /* ---------- Error ---------- */
-.zeclau-error {
+.zoclau-error {
   align-self: flex-start;
   max-width: 100%;
   border: 1px solid #f8c6d0;
@@ -433,7 +433,7 @@
   box-sizing: border-box;
 }
 
-.zeclau-error-text {
+.zoclau-error-text {
   font-size: 13px;
   line-height: 1.45;
   overflow-wrap: anywhere;
@@ -442,7 +442,7 @@
   max-width: 100%;
 }
 
-.zeclau-error-retry {
+.zoclau-error-retry {
   border: 1px solid #f39ab0;
   background: #ffffff;
   color: #9b1e45;
@@ -452,12 +452,12 @@
   cursor: pointer;
 }
 
-.zeclau-error-retry:hover {
+.zoclau-error-retry:hover {
   background: #ffe7ec;
 }
 
 /* ---------- Input Composer ---------- */
-.zeclau-input-area {
+.zoclau-input-area {
   grid-row: 2;
   padding: 0 8px 8px;
   box-sizing: border-box;
@@ -467,17 +467,17 @@
   margin-top: auto;
 }
 
-.zeclau-composer-toolbar {
+.zoclau-composer-toolbar {
   display: none;
 }
 
-.zeclau-history-wrap {
+.zoclau-history-wrap {
   position: relative;
 }
 
-.zeclau-icon-btn,
-.zeclau-toolbar-btn,
-.zeclau-file-picker-btn {
+.zoclau-icon-btn,
+.zoclau-toolbar-btn,
+.zoclau-file-picker-btn {
   width: 20px;
   height: 20px;
   display: inline-flex;
@@ -492,20 +492,20 @@
   transition: color 0.13s ease, background-color 0.13s ease;
 }
 
-.zeclau-toolbar-btn:hover,
-.zeclau-file-picker-btn:hover,
-.zeclau-icon-btn:hover {
+.zoclau-toolbar-btn:hover,
+.zoclau-file-picker-btn:hover,
+.zoclau-icon-btn:hover {
   color: #2f4f82;
   background: rgba(66, 108, 175, 0.13);
 }
 
-.zeclau-toolbar-icon {
+.zoclau-toolbar-icon {
   width: 15px;
   height: 15px;
   display: block;
 }
 
-.zeclau-toolbar-icon-path {
+.zoclau-toolbar-icon-path {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.9;
@@ -514,7 +514,7 @@
   vector-effect: non-scaling-stroke;
 }
 
-.zeclau-input-shell {
+.zoclau-input-shell {
   position: relative;
   background: #ffffff;
   border: 1px solid #ced9ed;
@@ -526,7 +526,7 @@
   gap: 8px;
 }
 
-.zeclau-input-chip-row {
+.zoclau-input-chip-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -537,20 +537,20 @@
   overflow-x: hidden;
 }
 
-.zeclau-current-item-group {
+.zoclau-current-item-group {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   max-width: min(54%, 250px);
 }
 
-.zeclau-current-item-group.zeclau-current-item-group-hidden {
+.zoclau-current-item-group.zoclau-current-item-group-hidden {
   display: none !important;
 }
 
-.zeclau-current-item-chip,
-.zeclau-paper-chip,
-.zeclau-local-file-chip {
+.zoclau-current-item-chip,
+.zoclau-paper-chip,
+.zoclau-local-file-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -565,32 +565,32 @@
   line-height: 1.1;
 }
 
-.zeclau-current-item-chip {
+.zoclau-current-item-chip {
   cursor: pointer;
 }
 
-.zeclau-current-item-chip.is-empty {
+.zoclau-current-item-chip.is-empty {
   color: #8394af;
   background: #f0f3fa;
   border-color: #d4dceb;
 }
 
-.zeclau-paper-chip-label,
-.zeclau-local-file-label {
+.zoclau-paper-chip-label,
+.zoclau-local-file-label {
   max-width: 164px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.zeclau-selected-context-wrap,
-.zeclau-local-files-wrap {
+.zoclau-selected-context-wrap,
+.zoclau-local-files-wrap {
   display: contents;
 }
 
-.zeclau-context-clear-btn,
-.zeclau-paper-chip-remove,
-.zeclau-local-file-remove {
+.zoclau-context-clear-btn,
+.zoclau-paper-chip-remove,
+.zoclau-local-file-remove {
   border: none;
   background: transparent;
   color: #6680a8;
@@ -600,7 +600,7 @@
   padding: 0;
 }
 
-.zeclau-context-clear-btn {
+.zoclau-context-clear-btn {
   width: 18px;
   height: 18px;
   border-radius: 999px;
@@ -612,13 +612,13 @@
   justify-content: center;
 }
 
-.zeclau-context-clear-btn:hover,
-.zeclau-paper-chip-remove:hover,
-.zeclau-local-file-remove:hover {
+.zoclau-context-clear-btn:hover,
+.zoclau-paper-chip-remove:hover,
+.zoclau-local-file-remove:hover {
   color: #2e4d82;
 }
 
-.zeclau-input.zeclau-input-embedded {
+.zoclau-input.zoclau-input-embedded {
   width: 100%;
   min-height: 68px;
   max-height: 200px;
@@ -626,22 +626,22 @@
   border: none;
   border-radius: 0;
   background: transparent;
-  color: var(--zeclau-text);
+  color: var(--zoclau-text);
   font-size: 13px;
   line-height: 1.48;
   padding: 0 2px;
   box-sizing: border-box;
 }
 
-.zeclau-input.zeclau-input-embedded::placeholder {
+.zoclau-input.zoclau-input-embedded::placeholder {
   color: #97a6be;
 }
 
-.zeclau-input.zeclau-input-embedded:focus {
+.zoclau-input.zoclau-input-embedded:focus {
   outline: none;
 }
 
-.zeclau-mention-dropdown {
+.zoclau-mention-dropdown {
   position: absolute;
   left: 10px;
   right: 10px;
@@ -650,14 +650,14 @@
   border: 1px solid #cdd9ee;
   border-radius: 10px;
   background: #ffffff;
-  box-shadow: var(--zeclau-shadow);
+  box-shadow: var(--zoclau-shadow);
   padding: 6px;
   display: none;
   max-height: 220px;
   overflow: auto;
 }
 
-.zeclau-mention-item {
+.zoclau-mention-item {
   width: 100%;
   border: none;
   border-radius: 8px;
@@ -669,46 +669,46 @@
   cursor: pointer;
 }
 
-.zeclau-mention-item:hover,
-.zeclau-mention-item.is-active {
+.zoclau-mention-item:hover,
+.zoclau-mention-item.is-active {
   background: #edf4ff;
 }
 
-.zeclau-input-footer {
+.zoclau-input-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
 }
 
-.zeclau-input-footer-left {
+.zoclau-input-footer-left {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
 }
 
-.zeclau-meta-badge {
+.zoclau-meta-badge {
   font-size: 12px;
   white-space: nowrap;
 }
 
-.zeclau-meta-model {
+.zoclau-meta-model {
   color: #f1724f;
   font-weight: 500;
 }
 
-.zeclau-meta-thinking {
+.zoclau-meta-thinking {
   color: #8a97ad;
 }
 
-.zeclau-input-action-group {
+.zoclau-input-action-group {
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
-.zeclau-btn {
+.zoclau-btn {
   border: 1px solid #ccd7ea;
   border-radius: 10px;
   background: #ffffff;
@@ -718,42 +718,42 @@
   cursor: pointer;
 }
 
-.zeclau-btn:hover {
+.zoclau-btn:hover {
   background: #f4f8ff;
   border-color: #bfd0eb;
 }
 
-.zeclau-btn-send {
+.zoclau-btn-send {
   min-width: 62px;
-  border-color: var(--zeclau-accent);
-  background: var(--zeclau-accent);
+  border-color: var(--zoclau-accent);
+  background: var(--zoclau-accent);
   color: #ffffff;
   font-weight: 500;
 }
 
-.zeclau-btn-send:hover {
-  border-color: var(--zeclau-accent-strong);
-  background: var(--zeclau-accent-strong);
+.zoclau-btn-send:hover {
+  border-color: var(--zoclau-accent-strong);
+  background: var(--zoclau-accent-strong);
 }
 
-.zeclau-btn-stop {
+.zoclau-btn-stop {
   border-color: #f8bac5;
   background: #fff1f3;
   color: #be123c;
 }
 
-.zeclau-btn-stop:hover {
+.zoclau-btn-stop:hover {
   background: #ffe6eb;
 }
 
-.zeclau-status-bar,
-.zeclau-conversation-row,
-.zeclau-context-inline-row {
+.zoclau-status-bar,
+.zoclau-conversation-row,
+.zoclau-context-inline-row {
   display: none !important;
 }
 
 /* ---------- History Menu ---------- */
-.zeclau-history-menu {
+.zoclau-history-menu {
   position: absolute;
   right: 0;
   top: calc(100% + 7px);
@@ -765,24 +765,24 @@
   border: 1px solid #d3ddef;
   border-radius: 14px;
   background: #ffffff;
-  box-shadow: var(--zeclau-shadow);
+  box-shadow: var(--zoclau-shadow);
   padding: 6px;
 }
 
-.zeclau-history-empty {
+.zoclau-history-empty {
   font-size: 12px;
   color: #8493ab;
   padding: 8px 8px 8px 6px;
 }
 
-.zeclau-history-row {
+.zoclau-history-row {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 2px 0;
 }
 
-.zeclau-history-item {
+.zoclau-history-item {
   flex: 1 1 auto;
   min-width: 0;
   border: 1px solid transparent;
@@ -797,17 +797,17 @@
   gap: 2px;
 }
 
-.zeclau-history-row.is-active .zeclau-history-item,
-.zeclau-history-item.is-active {
+.zoclau-history-row.is-active .zoclau-history-item,
+.zoclau-history-item.is-active {
   background: #e8f0ff;
   border-color: #c7d8fb;
 }
 
-.zeclau-history-item:hover {
+.zoclau-history-item:hover {
   border-color: #cad8f3;
 }
 
-.zeclau-history-item-title {
+.zoclau-history-item-title {
   font-size: 12px;
   font-weight: 500;
   line-height: 1.25;
@@ -816,12 +816,12 @@
   white-space: nowrap;
 }
 
-.zeclau-history-item-time {
+.zoclau-history-item-time {
   font-size: 11px;
   color: #8a98b0;
 }
 
-.zeclau-history-item-delete {
+.zoclau-history-item-delete {
   flex: 0 0 auto;
   width: 22px;
   height: 22px;
@@ -836,14 +836,14 @@
   padding: 0;
 }
 
-.zeclau-history-item-delete:hover {
+.zoclau-history-item-delete:hover {
   border-color: #f3b1bf;
   color: #c0274c;
   background: #fff1f4;
 }
 
 /* ---------- Scroll Rail ---------- */
-.zeclau-scroll-rail {
+.zoclau-scroll-rail {
   position: absolute;
   right: 10px;
   top: 50%;
@@ -857,22 +857,22 @@
   transition: opacity 0.14s ease;
 }
 
-.zeclau-scroll-rail.is-visible {
+.zoclau-scroll-rail.is-visible {
   display: flex !important;
   pointer-events: auto;
 }
 
-.zeclau-scroll-rail.is-inactive {
+.zoclau-scroll-rail.is-inactive {
   display: none !important;
 }
 
 /* Only highlight when pointer is on the rail/buttons */
-.zeclau-scroll-rail:hover,
-.zeclau-scroll-rail:focus-within {
+.zoclau-scroll-rail:hover,
+.zoclau-scroll-rail:focus-within {
   opacity: 0.96;
 }
 
-.zeclau-scroll-btn {
+.zoclau-scroll-btn {
   width: 34px;
   height: 34px;
   border-radius: 999px;
@@ -887,31 +887,31 @@
   transition: color 0.13s ease, border-color 0.13s ease, background-color 0.13s ease;
 }
 
-.zeclau-scroll-btn:hover:not(:disabled) {
+.zoclau-scroll-btn:hover:not(:disabled) {
   color: #23497f;
   border-color: #b9c9e6;
   background: #ffffff;
 }
 
-.zeclau-scroll-btn:disabled {
+.zoclau-scroll-btn:disabled {
   cursor: default;
   opacity: 0.4;
 }
 
-.zeclau-scroll-btn-icon {
+.zoclau-scroll-btn-icon {
   width: 18px;
   height: 18px;
   display: block;
 }
 
-.zeclau-scroll-btn-glyph,
-.zeclau-scroll-btn-bar {
+.zoclau-scroll-btn-glyph,
+.zoclau-scroll-btn-bar {
   fill: currentColor;
 }
 
 /* ---------- Header / Sidenav Icon+Title ---------- */
-.zeclau-pane-header-row,
-.zeclau-pane-header-host {
+.zoclau-pane-header-row,
+.zoclau-pane-header-host {
   width: 100% !important;
   box-sizing: border-box !important;
   display: -moz-box !important;
@@ -923,7 +923,7 @@
 
 [data-l10n-id="zoclau-sidebar-header"],
 [data-l10n-id="zoclau-sidebar-sidenav"] {
-  list-style-image: url("chrome://zeclau/content/icons/zoclau-16.png") !important;
+  list-style-image: url("chrome://zoclau/content/icons/zoclau-16.png") !important;
 }
 
 [data-l10n-id="zoclau-sidebar-header"] {
@@ -952,19 +952,19 @@
   min-height: 18px !important;
 }
 
-.zeclau-pane-header-text {
+.zoclau-pane-header-text {
   margin-inline-start: 6px !important;
   font-size: 14px !important;
   font-weight: 500 !important;
   color: #5f6f88 !important;
 }
 /* Push collapse arrow to the far right */
-.zeclau-pane-header-row > :last-child {
+.zoclau-pane-header-row > :last-child {
   margin-inline-start: auto !important;
 }
 
 /* ---------- Legacy compact controls (unused currently) ---------- */
-.zeclau-live-badge {
+.zoclau-live-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -976,64 +976,64 @@
   background: #ffffff;
 }
 
-.zeclau-live-dot {
+.zoclau-live-dot {
   width: 7px;
   height: 7px;
   border-radius: 999px;
-  background: var(--zeclau-success);
+  background: var(--zoclau-success);
 }
 
-.zeclau-live-dot-thinking {
+.zoclau-live-dot-thinking {
   background: #eab308;
 }
 
-.zeclau-live-dot-error {
-  background: var(--zeclau-danger);
+.zoclau-live-dot-error {
+  background: var(--zoclau-danger);
 }
 
-.zeclau-conversation-title,
-.zeclau-btn-icon-lite,
-.zeclau-btn-delete-lite {
+.zoclau-conversation-title,
+.zoclau-btn-icon-lite,
+.zoclau-btn-delete-lite {
   font-size: 12px;
 }
 
 @media (max-width: 700px) {
-  .zeclau-panel-embedded {
+  .zoclau-panel-embedded {
     margin-right: 4px;
     padding: 6px 6px 6px 4px;
   }
 
-  .zeclau-messages {
+  .zoclau-messages {
     padding-right: 44px;
   }
 
-  .zeclau-scroll-btn {
+  .zoclau-scroll-btn {
     width: 30px;
     height: 30px;
   }
 
-  .zeclau-input.zeclau-input-embedded {
+  .zoclau-input.zoclau-input-embedded {
     min-height: 56px;
   }
 }
 
 
 /* Rollback patch: restore previous visual style after accidental full redesign */
-.zeclau-panel-embedded {
+.zoclau-panel-embedded {
   border-radius: 0 !important;
   margin-right: 0 !important;
   padding: 8px !important;
 }
 
-.zeclau-icon-btn,
-.zeclau-toolbar-btn,
-.zeclau-file-picker-btn {
+.zoclau-icon-btn,
+.zoclau-toolbar-btn,
+.zoclau-file-picker-btn {
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
 }
 
-.zeclau-input.zeclau-input-embedded {
+.zoclau-input.zoclau-input-embedded {
   border: none !important;
   border-radius: 0 !important;
   background: transparent !important;
@@ -1041,18 +1041,18 @@
   min-height: 72px !important;
 }
 
-.zeclau-context-clear-btn,
-.zeclau-paper-chip-remove,
-.zeclau-local-file-remove,
-.zeclau-text-copy-btn,
-.zeclau-user-msg-action,
-.zeclau-tool-toggle,
-.zeclau-mention-item {
+.zoclau-context-clear-btn,
+.zoclau-paper-chip-remove,
+.zoclau-local-file-remove,
+.zoclau-text-copy-btn,
+.zoclau-user-msg-action,
+.zoclau-tool-toggle,
+.zoclau-mention-item {
   border: none !important;
   background: transparent !important;
 }
 
-.zeclau-message-content {
+.zoclau-message-content {
   font-size: 14px !important;
 }
 
@@ -1061,7 +1061,7 @@
 
 
 /* UI polish v2: composition, spacing, and fine-grain visual hierarchy */
-.zeclau-panel-embedded {
+.zoclau-panel-embedded {
   border-radius: 16px !important;
   padding: 4px 6px 4px !important;
   margin-right: 4px !important;
@@ -1069,58 +1069,58 @@
   background: linear-gradient(180deg, #f8fafe 0%, #f4f7fd 100%) !important;
 }
 
-.zeclau-messages {
+.zoclau-messages {
   padding: 8px 56px 4px 14px !important;
   gap: 28px !important;
 }
 
-.zeclau-welcome {
+.zoclau-welcome {
   justify-content: flex-start !important;
   min-height: 0 !important;
   padding-top: 62px !important;
   padding-bottom: 18px !important;
 }
 
-.zeclau-welcome-title {
+.zoclau-welcome-title {
   font-size: 22px !important;
   line-height: 1.22 !important;
   letter-spacing: 0.006em !important;
 }
 
-.zeclau-welcome-subtitle {
+.zoclau-welcome-subtitle {
   max-width: 300px !important;
   font-size: 10.5px !important;
   line-height: 1.5 !important;
   text-align: center !important;
 }
 
-.zeclau-input-area {
+.zoclau-input-area {
   padding: 0 10px 4px !important;
   gap: 2px !important;
 }
 
-.zeclau-composer-toolbar {
+.zoclau-composer-toolbar {
   gap: 8px !important;
   margin-bottom: 2px !important;
 }
 
-.zeclau-icon-btn,
-.zeclau-toolbar-btn,
-.zeclau-file-picker-btn {
+.zoclau-icon-btn,
+.zoclau-toolbar-btn,
+.zoclau-file-picker-btn {
   width: 22px !important;
   height: 22px !important;
   border-radius: 8px !important;
   color: #6b809f !important;
 }
 
-.zeclau-toolbar-btn:hover,
-.zeclau-file-picker-btn:hover,
-.zeclau-icon-btn:hover {
+.zoclau-toolbar-btn:hover,
+.zoclau-file-picker-btn:hover,
+.zoclau-icon-btn:hover {
   color: #2a4f85 !important;
   background: rgba(66, 108, 175, 0.16) !important;
 }
 
-.zeclau-input-shell {
+.zoclau-input-shell {
   border-radius: 16px !important;
   border: 1px solid #c9d7ee !important;
   background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%) !important;
@@ -1129,24 +1129,24 @@
   gap: 4px !important;
 }
 
-.zeclau-input-shell:focus-within {
+.zoclau-input-shell:focus-within {
   border-color: #aec3ea !important;
   box-shadow:
     0 0 0 3px rgba(64, 108, 191, 0.12),
     0 10px 24px rgba(31, 57, 102, 0.11) !important;
 }
 
-.zeclau-input-chip-row {
+.zoclau-input-chip-row {
   min-height: 28px !important;
   gap: 7px !important;
 }
 
-.zeclau-current-item-group {
+.zoclau-current-item-group {
   max-width: min(72%, 280px) !important;
   min-width: 0 !important;
 }
 
-.zeclau-current-item-chip {
+.zoclau-current-item-chip {
   width: 142px !important;
   height: 28px !important;
   min-width: 0 !important;
@@ -1162,45 +1162,45 @@
   box-sizing: border-box !important;
 }
 
-.zeclau-current-item-chip.is-empty {
+.zoclau-current-item-chip.is-empty {
   background: #f2f5fb !important;
   border-color: #d3dced !important;
   color: #8898af !important;
 }
 
-.zeclau-paper-chip,
-.zeclau-local-file-chip {
+.zoclau-paper-chip,
+.zoclau-local-file-chip {
   width: 142px !important;
   height: 28px !important;
   box-sizing: border-box !important;
   padding: 3px 8px !important;
 }
 
-.zeclau-paper-chip-label,
-.zeclau-local-file-label {
+.zoclau-paper-chip-label,
+.zoclau-local-file-label {
   max-width: 156px !important;
 }
 
-.zeclau-input.zeclau-input-embedded {
+.zoclau-input.zoclau-input-embedded {
   min-height: 42px !important;
   font-size: 14px !important;
   line-height: 1.45 !important;
 }
 
-.zeclau-input.zeclau-input-embedded::placeholder {
+.zoclau-input.zoclau-input-embedded::placeholder {
   color: #9aa8bf !important;
 }
 
-.zeclau-input-footer {
+.zoclau-input-footer {
   border-top: 1px solid #e7edf8 !important;
   padding-top: 7px !important;
 }
 
-.zeclau-meta-badge {
+.zoclau-meta-badge {
   font-size: 11px !important;
 }
 
-.zeclau-btn-send {
+.zoclau-btn-send {
   min-width: 64px !important;
   border-radius: 12px !important;
   border-color: #2f66e0 !important;
@@ -1208,24 +1208,24 @@
   box-shadow: 0 4px 12px rgba(44, 95, 204, 0.28) !important;
 }
 
-.zeclau-btn-send:hover {
+.zoclau-btn-send:hover {
   border-color: #2257cf !important;
   background: linear-gradient(180deg, #2f66e0 0%, #2459cc 100%) !important;
 }
 
 /* Fix: place initial-paper clear button inside chip */
-.zeclau-current-item-group {
+.zoclau-current-item-group {
   position: relative !important;
   display: inline-flex !important;
   align-items: center !important;
   gap: 0 !important;
 }
 
-.zeclau-current-item-chip {
+.zoclau-current-item-chip {
   padding-right: 24px !important;
 }
 
-.zeclau-context-clear-btn {
+.zoclau-context-clear-btn {
   position: absolute !important;
   right: 8px !important;
   top: 50% !important;
@@ -1245,36 +1245,36 @@
   z-index: 2 !important;
 }
 
-.zeclau-context-clear-btn:hover {
+.zoclau-context-clear-btn:hover {
   color: #2e4f82 !important;
   background: transparent !important;
 }
 
 /* Layout stability fix: keep full sidebar width and center welcome in viewport */
-#zeclau-itempane-root,
-#zeclau-itempane-root > .zeclau-panel.zeclau-panel-embedded {
+#zoclau-itempane-root,
+#zoclau-itempane-root > .zoclau-panel.zoclau-panel-embedded {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
 }
 
-#zeclau-itempane-root > .zeclau-panel.zeclau-panel-embedded {
+#zoclau-itempane-root > .zoclau-panel.zoclau-panel-embedded {
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
 
-.zeclau-messages-wrapper,
-.zeclau-messages,
-.zeclau-input-area,
-.zeclau-input-shell,
-.zeclau-input-chip-row {
+.zoclau-messages-wrapper,
+.zoclau-messages,
+.zoclau-input-area,
+.zoclau-input-shell,
+.zoclau-input-chip-row {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
   box-sizing: border-box !important;
 }
 
-.zeclau-welcome {
+.zoclau-welcome {
   justify-content: center !important;
   flex: 1 !important;
   min-height: 180px !important;
@@ -1282,21 +1282,21 @@
   padding-bottom: 0 !important;
 }
 
-.zeclau-welcome-title,
-.zeclau-welcome-subtitle {
+.zoclau-welcome-title,
+.zoclau-welcome-subtitle {
   text-align: center !important;
 }
 
 /* Final polish: fix initial chip close button overlap + welcome visual centering */
-.zeclau-current-item-group {
+.zoclau-current-item-group {
   max-width: min(78%, 320px) !important;
 }
 
-.zeclau-current-item-group > .zeclau-current-item-chip {
+.zoclau-current-item-group > .zoclau-current-item-chip {
   padding-right: 30px !important;
 }
 
-.zeclau-current-item-group > .zeclau-context-clear-btn {
+.zoclau-current-item-group > .zoclau-context-clear-btn {
   right: 10px !important;
   width: 12px !important;
   height: 12px !important;
@@ -1304,17 +1304,17 @@
   line-height: 1 !important;
 }
 
-.zeclau-welcome {
+.zoclau-welcome {
   transform: translateX(16px) !important;
 }
 
-.zeclau-welcome-title {
+.zoclau-welcome-title {
   font-size: 23px !important;
   line-height: 1.24 !important;
   letter-spacing: 0.004em !important;
 }
 
-.zeclau-welcome-subtitle {
+.zoclau-welcome-subtitle {
   margin-top: 11px !important;
   font-size: 11.5px !important;
   line-height: 1.52 !important;
@@ -1322,14 +1322,14 @@
 }
 
 /* Final fix v2: enforce ellipsis chip + move/beautify welcome */
-.zeclau-current-item-group {
+.zoclau-current-item-group {
   position: relative !important;
   width: min(78%, 320px) !important;
   max-width: min(78%, 320px) !important;
   min-width: 0 !important;
 }
 
-.zeclau-current-item-group > .zeclau-current-item-chip {
+.zoclau-current-item-group > .zoclau-current-item-chip {
   display: block !important;
   width: 142px !important;
   height: 28px !important;
@@ -1341,7 +1341,7 @@
   box-sizing: border-box !important;
 }
 
-.zeclau-current-item-group > .zeclau-context-clear-btn {
+.zoclau-current-item-group > .zoclau-context-clear-btn {
   right: 9px !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
@@ -1351,62 +1351,62 @@
   z-index: 3 !important;
 }
 
-.zeclau-welcome {
+.zoclau-welcome {
   transform: translateX(24px) !important;
 }
 
-.zeclau-welcome-title {
+.zoclau-welcome-title {
   font-family: "Avenir Next", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif !important;
   font-size: 22px !important;
   line-height: 1.25 !important;
   letter-spacing: 0.003em !important;
 }
 
-.zeclau-welcome-subtitle {
+.zoclau-welcome-subtitle {
   max-width: 320px !important;
   font-size: 11px !important;
   line-height: 1.55 !important;
 }
 
 /* Final tweak: shorten initial selected-paper chip width */
-.zeclau-current-item-group {
+.zoclau-current-item-group {
   width: min(62%, 236px) !important;
   max-width: min(62%, 236px) !important;
 }
 
 
 /* Final tweak v2: shorten both placeholder/current chip and added-paper chip by 1/4 */
-.zeclau-current-item-group {
+.zoclau-current-item-group {
   width: 142px !important;
   max-width: 142px !important;
 }
 
-.zeclau-paper-chip,
-.zeclau-local-file-chip {
+.zoclau-paper-chip,
+.zoclau-local-file-chip {
   width: 142px !important;
   height: 28px !important;
   box-sizing: border-box !important;
 }
 
-.zeclau-paper-chip-label,
-.zeclau-local-file-label {
+.zoclau-paper-chip-label,
+.zoclau-local-file-label {
   max-width: 117px !important;
 }
 
 /* Final tweak v3: only top/bottom scroll buttons + refined icon style */
-.zeclau-scroll-rail {
+.zoclau-scroll-rail {
   right: 10px;
   gap: 12px;
   opacity: 0.16;
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
-.zeclau-scroll-rail:hover,
-.zeclau-scroll-rail:focus-within {
+.zoclau-scroll-rail:hover,
+.zoclau-scroll-rail:focus-within {
   opacity: 0.98;
 }
 
-.zeclau-scroll-btn {
+.zoclau-scroll-btn {
   width: 36px;
   height: 36px;
   border-radius: 999px;
@@ -1416,18 +1416,18 @@
   box-shadow: 0 6px 16px rgba(43, 66, 104, 0.14);
 }
 
-.zeclau-scroll-btn:hover:not(:disabled) {
+.zoclau-scroll-btn:hover:not(:disabled) {
   color: #254f8b;
   border-color: #b9cbe9;
   background: #ffffff;
 }
 
-.zeclau-scroll-btn-icon {
+.zoclau-scroll-btn-icon {
   width: 16px;
   height: 16px;
 }
 
-.zeclau-scroll-btn-line {
+.zoclau-scroll-btn-line {
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -1435,37 +1435,37 @@
 }
 
 /* Final tweak v4: enlarge top/bottom scroll arrow icons */
-.zeclau-scroll-btn-icon {
+.zoclau-scroll-btn-icon {
   width: 20px;
   height: 20px;
 }
 
 /* Final tweak v5: make top/bottom arrow glyph visibly larger */
-.zeclau-scroll-btn-icon {
+.zoclau-scroll-btn-icon {
   width: 24px;
   height: 28px;
 }
 
 /* Final tweak v6: force larger scroll-arrow glyphs (compat old/new icon classes) */
-.zeclau-scroll-btn {
+.zoclau-scroll-btn {
   overflow: visible !important;
 }
 
-.zeclau-scroll-btn-icon {
+.zoclau-scroll-btn-icon {
   width: 26px !important;
   height: 26px !important;
 }
 
-.zeclau-scroll-btn-glyph,
-.zeclau-scroll-btn-bar,
-.zeclau-scroll-btn-line {
+.zoclau-scroll-btn-glyph,
+.zoclau-scroll-btn-bar,
+.zoclau-scroll-btn-line {
   transform-box: fill-box;
   transform-origin: center;
   transform: scale(1.18);
 }
 
 /* Final tweak v7: force visible title text in expanded pane header */
-[data-l10n-id="zoclau-sidebar-header"] .zeclau-pane-header-text {
+[data-l10n-id="zoclau-sidebar-header"] .zoclau-pane-header-text {
   display: inline-block !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -1474,7 +1474,7 @@
 }
 
 /* Final tweak v8: collapsed sidenav title fallback text */
-.zeclau-pane-sidenav-text {
+.zoclau-pane-sidenav-text {
   display: inline-block !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -1486,14 +1486,14 @@
 }
 
 /* Final tweak v9: fix @ mention dropdown item overlap/stacking */
-.zeclau-mention-dropdown {
+.zoclau-mention-dropdown {
   display: none;
   flex-direction: column !important;
   gap: 4px !important;
   z-index: 120 !important;
 }
 
-.zeclau-mention-item {
+.zoclau-mention-item {
   display: block !important;
   position: relative !important;
   width: 100% !important;
@@ -1508,18 +1508,18 @@
 }
 
 /* Final tweak v10: open @ mention list below input */
-.zeclau-mention-dropdown {
+.zoclau-mention-dropdown {
   top: calc(100% + 8px) !important;
   bottom: auto !important;
 }
 
 /* Final tweak v11: mention list lower + half height */
-.zeclau-mention-dropdown {
+.zoclau-mention-dropdown {
   max-height: 110px !important;
 }
 
 /* Final tweak v12: restore mention list above input with original size */
-.zeclau-mention-dropdown {
+.zoclau-mention-dropdown {
   top: auto !important;
   bottom: calc(100% + 8px) !important;
   left: 10px !important;
@@ -1529,7 +1529,7 @@
 }
 
 /* Final tweak v13: mention list full width, lifted above toolbar, selected-item highlight */
-.zeclau-mention-dropdown {
+.zoclau-mention-dropdown {
   left: 0 !important;
   right: 0 !important;
   width: auto !important;
@@ -1537,29 +1537,29 @@
   top: auto !important;
 }
 
-.zeclau-mention-item.is-selected {
+.zoclau-mention-item.is-selected {
   background: #f4f8ff !important;
   color: #7a9ac4 !important;
 }
 
-.zeclau-mention-item.is-selected.is-active,
-.zeclau-mention-item.is-selected:hover {
+.zoclau-mention-item.is-selected.is-active,
+.zoclau-mention-item.is-selected:hover {
   background: #edf4ff !important;
   color: #6b8db8 !important;
 }
 
 /* Final tweak v14: input area spacing + remove focus blue halo */
-.zeclau-input-area {
+.zoclau-input-area {
   padding: 0 5px 2px !important;
 }
 
-.zeclau-input-shell:focus-within {
+.zoclau-input-shell:focus-within {
   border-color: #c9d7ee !important;
   box-shadow: 0 8px 20px rgba(31, 57, 102, 0.08) !important;
 }
 
 /* Final tweak v15: make history delete X inline (no circular button) */
-.zeclau-history-item-delete {
+.zoclau-history-item-delete {
   width: auto !important;
   height: auto !important;
   min-width: 0 !important;
@@ -1578,24 +1578,24 @@
   color: #8a99b2 !important;
 }
 
-.zeclau-history-item-delete:hover {
+.zoclau-history-item-delete:hover {
   border: none !important;
   background: transparent !important;
   color: #c0274c !important;
 }
 
 /* Final tweak v16: place history delete X inside the same row block */
-.zeclau-history-row {
+.zoclau-history-row {
   position: relative !important;
   gap: 0 !important;
 }
 
-.zeclau-history-item {
+.zoclau-history-item {
   width: 100% !important;
   padding-right: 24px !important;
 }
 
-.zeclau-history-item-delete {
+.zoclau-history-item-delete {
   position: absolute !important;
   right: 10px !important;
   top: 50% !important;
@@ -1609,13 +1609,13 @@
 }
 
 /* Final tweak v17: history menu width matches input area */
-.zeclau-history-menu {
+.zoclau-history-menu {
   min-width: 0 !important;
   max-width: none !important;
 }
 
 /* Final tweak v18: fix history menu height to exactly 5 rows */
-.zeclau-history-menu {
+.zoclau-history-menu {
   height: 264px !important;
   min-height: 264px !important;
   max-height: 264px !important;
@@ -1624,7 +1624,7 @@
 
 
 /* Final tweak v19: relax assistant message width limit to avoid clipped text */
-.zeclau-message-assistant {
+.zoclau-message-assistant {
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
@@ -1633,17 +1633,17 @@
   padding-right: 6px !important;
 }
 
-.zeclau-message-assistant .zeclau-message-content,
-.zeclau-message-assistant .zeclau-heading,
-.zeclau-message-assistant p,
-.zeclau-message-assistant li {
+.zoclau-message-assistant .zoclau-message-content,
+.zoclau-message-assistant .zoclau-heading,
+.zoclau-message-assistant p,
+.zoclau-message-assistant li {
   white-space: normal !important;
   overflow-wrap: anywhere !important;
   word-break: break-word !important;
 }
 
 /* Final tweak v20: prevent remove button from inflating @-added paper chip size */
-.zeclau-selected-context-wrap > .zeclau-paper-chip {
+.zoclau-selected-context-wrap > .zoclau-paper-chip {
   position: relative !important;
   box-sizing: border-box !important;
   width: 142px !important;
@@ -1656,7 +1656,7 @@
   line-height: 1.2 !important;
 }
 
-.zeclau-selected-context-wrap > .zeclau-paper-chip > .zeclau-paper-chip-label {
+.zoclau-selected-context-wrap > .zoclau-paper-chip > .zoclau-paper-chip-label {
   display: block !important;
   max-width: 100% !important;
   overflow: hidden !important;
@@ -1664,7 +1664,7 @@
   white-space: nowrap !important;
 }
 
-.zeclau-selected-context-wrap > .zeclau-paper-chip > .zeclau-paper-chip-remove {
+.zoclau-selected-context-wrap > .zoclau-paper-chip > .zoclau-paper-chip-remove {
   position: absolute !important;
   right: 9px !important;
   top: 50% !important;
@@ -1684,7 +1684,7 @@
 
 
 /* Final tweak v21: slash-history dropdown follows @mention style */
-.zeclau-history-menu {
+.zoclau-history-menu {
   top: auto !important;
   width: auto !important;
   min-width: 0 !important;
@@ -1692,11 +1692,11 @@
   border: 1px solid #cdd9ee !important;
   border-radius: 10px !important;
   background: #ffffff !important;
-  box-shadow: var(--zeclau-shadow) !important;
+  box-shadow: var(--zoclau-shadow) !important;
   padding: 6px !important;
 }
 
-.zeclau-history-item.zeclau-mention-item {
+.zoclau-history-item.zoclau-mention-item {
   border: none !important;
   border-radius: 8px !important;
   background: transparent !important;
@@ -1706,20 +1706,20 @@
   padding: 6px 24px 6px 8px !important;
 }
 
-.zeclau-history-row.is-active .zeclau-history-item,
-.zeclau-history-item.is-active,
-.zeclau-history-item:hover {
+.zoclau-history-row.is-active .zoclau-history-item,
+.zoclau-history-item.is-active,
+.zoclau-history-item:hover {
   background: #c8d9f5 !important;
   color: #3a6aab !important;
   border-color: transparent !important;
   font-weight: 500 !important;
 }
 
-.zeclau-history-item-title {
+.zoclau-history-item-title {
   font-size: 12px !important;
 }
 
-.zeclau-history-item-time {
+.zoclau-history-item-time {
   font-size: 11px !important;
   color: #8a98b0 !important;
 }
@@ -1729,20 +1729,20 @@
 
 
 /* Final tweak v22: stronger active highlight for @ mention keyboard selection */
-.zeclau-mention-dropdown .zeclau-mention-item.is-active {
+.zoclau-mention-dropdown .zoclau-mention-item.is-active {
   background: #dfeaff !important;
   color: #1c4b8f !important;
   box-shadow: none !important;
 }
 
-.zeclau-mention-dropdown .zeclau-mention-item.is-selected.is-active {
+.zoclau-mention-dropdown .zoclau-mention-item.is-selected.is-active {
   background: #d5e4ff !important;
   color: #143d79 !important;
   box-shadow: none !important;
 }
 /* Final tweak v23: unmistakable @ mention keyboard active state */
-.zeclau-mention-dropdown .zeclau-mention-item.is-active,
-.zeclau-mention-dropdown .zeclau-mention-item.is-selected.is-active {
+.zoclau-mention-dropdown .zoclau-mention-item.is-active,
+.zoclau-mention-dropdown .zoclau-mention-item.is-selected.is-active {
   background: linear-gradient(180deg, #3b74ef 0%, #2a5fd7 100%) !important;
   color: #ffffff !important;
   box-shadow: none !important;
@@ -1750,7 +1750,7 @@
 }
 /* Final tweak v24: swap active/selected colors in @ mention list */
 /* active item style */
-.zeclau-mention-dropdown .zeclau-mention-item.is-active {
+.zoclau-mention-dropdown .zoclau-mention-item.is-active {
   background: #c8d9f5 !important;
   color: #3a6aab !important;
   box-shadow: none !important;
@@ -1758,8 +1758,8 @@
 }
 
 /* selected item style */
-.zeclau-mention-dropdown .zeclau-mention-item.is-selected,
-.zeclau-mention-dropdown .zeclau-mention-item.is-selected:hover {
+.zoclau-mention-dropdown .zoclau-mention-item.is-selected,
+.zoclau-mention-dropdown .zoclau-mention-item.is-selected:hover {
   background: #e9f1ff !important;
   color: #1f4f96 !important;
   box-shadow: none !important;
@@ -1767,7 +1767,7 @@
 }
 
 /* selected + active item style */
-.zeclau-mention-dropdown .zeclau-mention-item.is-selected.is-active {
+.zoclau-mention-dropdown .zoclau-mention-item.is-selected.is-active {
   background: #c8d9f5 !important;
   color: #3a6aab !important;
   box-shadow: none !important;
@@ -1775,29 +1775,29 @@
 }
 
 /* Content area expansion */
-.zeclau-input.zeclau-input-embedded {
+.zoclau-input.zoclau-input-embedded {
   min-height: 36px !important;
   max-height: 160px !important;
 }
-.zeclau-input-shell {
+.zoclau-input-shell {
   padding: 6px 10px 6px !important;
   gap: 5px !important;
 }
-.zeclau-input-area {
+.zoclau-input-area {
   padding: 0 4px 2px !important;
   gap: 0 !important;
 }
-.zeclau-input-chip-row {
+.zoclau-input-chip-row {
   min-height: 0 !important;
   gap: 4px !important;
 }
-.zeclau-input-footer {
+.zoclau-input-footer {
   padding-top: 2px !important;
 }
 
 
 /* Final tweak v25: lock panel height and scroll long responses inside message area */
-#zeclau-itempane-root {
+#zoclau-itempane-root {
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
@@ -1806,7 +1806,7 @@
   overflow: hidden !important;
 }
 
-#zeclau-itempane-root > .zeclau-panel.zeclau-panel-embedded {
+#zoclau-itempane-root > .zoclau-panel.zoclau-panel-embedded {
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
@@ -1815,12 +1815,12 @@
   overflow: hidden !important;
 }
 
-#zeclau-itempane-root > .zeclau-panel.zeclau-panel-embedded > .zeclau-messages-wrapper {
+#zoclau-itempane-root > .zoclau-panel.zoclau-panel-embedded > .zoclau-messages-wrapper {
   min-height: 0 !important;
   overflow: hidden !important;
 }
 
-#zeclau-itempane-root > .zeclau-panel.zeclau-panel-embedded > .zeclau-messages-wrapper > .zeclau-messages {
+#zoclau-itempane-root > .zoclau-panel.zoclau-panel-embedded > .zoclau-messages-wrapper > .zoclau-messages {
   height: 100% !important;
   max-height: 100% !important;
   min-height: 0 !important;
@@ -1829,24 +1829,24 @@
   overscroll-behavior: contain !important;
 }
 
-#zeclau-itempane-root > .zeclau-panel.zeclau-panel-embedded > .zeclau-input-area {
+#zoclau-itempane-root > .zoclau-panel.zoclau-panel-embedded > .zoclau-input-area {
   min-height: 0 !important;
   flex: 0 0 auto !important;
 }
 /* Final tweak v26: plugin panel fills parent */
-#zeclau-itempane-root,
-#zeclau-itempane-root > .zeclau-panel.zeclau-panel-embedded {
+#zoclau-itempane-root,
+#zoclau-itempane-root > .zoclau-panel.zoclau-panel-embedded {
   height: 100% !important;
   min-height: 0 !important;
   max-height: 100% !important;
 }
 
 /* External Contexts hover card for local folder picker */
-.zeclau-local-files-wrap {
+.zoclau-local-files-wrap {
   display: none !important;
 }
 
-.zeclau-external-context-menu {
+.zoclau-external-context-menu {
   position: absolute !important;
   left: 0;
   bottom: calc(100% + 10px);
@@ -1859,7 +1859,7 @@
   overflow: hidden !important;
 }
 
-.zeclau-external-context-header {
+.zoclau-external-context-header {
   padding: 9px 12px !important;
   border-bottom: 1px solid #d9dce2 !important;
   font-size: 12px !important;
@@ -1867,7 +1867,7 @@
   color: #50545b !important;
 }
 
-.zeclau-external-context-empty {
+.zoclau-external-context-empty {
   padding: 14px 10px 16px !important;
   text-align: center !important;
   font-size: 11px !important;
@@ -1875,34 +1875,34 @@
   font-style: italic !important;
 }
 
-.zeclau-external-context-list {
-  --zeclau-folder-row-height: 34px;
+.zoclau-external-context-list {
+  --zoclau-folder-row-height: 34px;
   display: flex !important;
   flex-direction: column !important;
-  max-height: calc(var(--zeclau-folder-row-height) * 5) !important;
+  max-height: calc(var(--zoclau-folder-row-height) * 5) !important;
   overflow-y: auto !important;
 }
 
-.zeclau-external-context-list::-webkit-scrollbar {
+.zoclau-external-context-list::-webkit-scrollbar {
   width: 6px;
 }
 
-.zeclau-external-context-list::-webkit-scrollbar-thumb {
+.zoclau-external-context-list::-webkit-scrollbar-thumb {
   border-radius: 999px;
   background: #c0c5ce;
 }
 
-.zeclau-external-context-item {
+.zoclau-external-context-item {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) auto !important;
   align-items: center !important;
   gap: 8px !important;
-  min-height: var(--zeclau-folder-row-height) !important;
+  min-height: var(--zoclau-folder-row-height) !important;
   padding: 7px 12px !important;
   box-sizing: border-box !important;
 }
 
-.zeclau-external-context-path {
+.zoclau-external-context-path {
   min-width: 0 !important;
   font-size: 11px !important;
   color: #2a2f36 !important;
@@ -1911,7 +1911,7 @@
   text-overflow: ellipsis !important;
 }
 
-.zeclau-external-context-remove {
+.zoclau-external-context-remove {
   border: none !important;
   background: transparent !important;
   color: #9aa0a8 !important;
@@ -1926,24 +1926,24 @@
   justify-content: center !important;
 }
 
-.zeclau-external-context-remove:hover {
+.zoclau-external-context-remove:hover {
   color: #646a73 !important;
 }
 
-.zeclau-file-picker-btn {
+.zoclau-file-picker-btn {
   position: relative !important;
 }
 
-.zeclau-file-picker-btn.has-local-folders {
+.zoclau-file-picker-btn.has-local-folders {
   color: #2f66e0 !important;
 }
 
-.zeclau-file-picker-btn.has-local-folders:hover {
+.zoclau-file-picker-btn.has-local-folders:hover {
   color: #2257cf !important;
   background: rgba(47, 102, 224, 0.14) !important;
 }
 
-.zeclau-folder-count-badge {
+.zoclau-folder-count-badge {
   position: absolute !important;
   right: -6px !important;
   top: -5px !important;

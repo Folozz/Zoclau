@@ -1,4 +1,4 @@
-﻿
+
 /**
  * ChatPanel - Renders the embedded chat UI in Zotero item pane.
  */
@@ -118,7 +118,7 @@ export class ChatPanel {
 
     build(): void {
         this.container.innerHTML = '';
-        this.container.className = 'zeclau-panel zeclau-panel-embedded';
+        this.container.className = 'zoclau-panel zoclau-panel-embedded';
         this.container.style.display = 'flex';
         this.container.style.flexDirection = 'column';
         this.container.style.flex = '1 1 auto';
@@ -129,7 +129,7 @@ export class ChatPanel {
         this.container.style.position = 'relative';
 
         this.messagesWrapper = this.doc.createElement('div');
-        this.messagesWrapper.className = 'zeclau-messages-wrapper';
+        this.messagesWrapper.className = 'zoclau-messages-wrapper';
         const baseMessagesHeight = `${BASE_MESSAGES_HEIGHT_PX}px`;
         this.messagesWrapper.style.setProperty('height', baseMessagesHeight, 'important');
         this.messagesWrapper.style.setProperty('min-height', baseMessagesHeight, 'important');
@@ -139,7 +139,7 @@ export class ChatPanel {
         this.messagesWrapper.style.overflow = 'hidden';
 
         this.messagesContainer = this.doc.createElement('div');
-        this.messagesContainer.className = 'zeclau-messages';
+        this.messagesContainer.className = 'zoclau-messages';
         this.messagesContainer.style.minHeight = '0';
         this.messagesContainer.style.height = '100%';
         this.messagesContainer.style.maxHeight = '100%';
@@ -253,51 +253,51 @@ export class ChatPanel {
 
     private buildConversationRow(): HTMLElement {
         const row = this.doc.createElement('div');
-        row.className = 'zeclau-conversation-row';
+        row.className = 'zoclau-conversation-row';
 
         const titleWrap = this.doc.createElement('div');
-        titleWrap.className = 'zeclau-conversation-title-wrap';
+        titleWrap.className = 'zoclau-conversation-title-wrap';
 
         this.conversationTitleBtn = this.doc.createElement('button');
         this.conversationTitleBtn.type = 'button';
-        this.conversationTitleBtn.className = 'zeclau-conversation-title';
+        this.conversationTitleBtn.className = 'zoclau-conversation-title';
         this.conversationTitleBtn.textContent = '会话';
         this.conversationTitleBtn.title = '切换会话';
         this.conversationTitleBtn.addEventListener('click', () => this.toggleHistoryMenu());
 
         this.historyMenu = this.doc.createElement('div');
-        this.historyMenu.className = 'zeclau-history-menu';
+        this.historyMenu.className = 'zoclau-history-menu';
         this.historyMenu.style.display = 'none';
 
         titleWrap.appendChild(this.conversationTitleBtn);
         titleWrap.appendChild(this.historyMenu);
 
         const actions = this.doc.createElement('div');
-        actions.className = 'zeclau-conversation-actions';
+        actions.className = 'zoclau-conversation-actions';
 
         this.historyToggleBtn = this.doc.createElement('button');
         this.historyToggleBtn.type = 'button';
-        this.historyToggleBtn.className = 'zeclau-btn zeclau-btn-icon-lite';
+        this.historyToggleBtn.className = 'zoclau-btn zoclau-btn-icon-lite';
         this.historyToggleBtn.textContent = '历史';
         this.historyToggleBtn.title = '历史会话';
         this.historyToggleBtn.addEventListener('click', () => this.toggleHistoryMenu());
 
         const newBtn = this.doc.createElement('button');
-        newBtn.className = 'zeclau-btn zeclau-btn-icon-lite';
+        newBtn.className = 'zoclau-btn zoclau-btn-icon-lite';
         newBtn.textContent = '新建';
         newBtn.title = '新建会话';
         newBtn.addEventListener('click', () => this.newChat());
 
         const delBtn = this.doc.createElement('button');
-        delBtn.className = 'zeclau-btn zeclau-btn-delete-lite';
+        delBtn.className = 'zoclau-btn zoclau-btn-delete-lite';
         delBtn.textContent = '删除';
         delBtn.title = '删除当前会话';
         delBtn.addEventListener('click', () => this.deleteCurrentConversation());
 
         const live = this.doc.createElement('div');
-        live.className = 'zeclau-live-badge zeclau-live-badge-compact';
+        live.className = 'zoclau-live-badge zoclau-live-badge-compact';
         this.statusDot = this.doc.createElement('span');
-        this.statusDot.className = 'zeclau-live-dot';
+        this.statusDot.className = 'zoclau-live-dot';
         const liveText = this.doc.createElement('span');
         liveText.textContent = '在线';
         live.appendChild(this.statusDot);
@@ -315,29 +315,29 @@ export class ChatPanel {
 
     private buildInputArea(): HTMLElement {
         const inputArea = this.doc.createElement('div');
-        inputArea.className = 'zeclau-input-area';
+        inputArea.className = 'zoclau-input-area';
         this.inputArea = inputArea;
 
         const toolbar = this.doc.createElement('div');
-        toolbar.className = 'zeclau-composer-toolbar';
+        toolbar.className = 'zoclau-composer-toolbar';
         this.composerToolbar = toolbar;
-        this.composerToolbar.classList.add('zeclau-history-wrap');
+        this.composerToolbar.classList.add('zoclau-history-wrap');
         this.ensureHistoryMenu();
 
         inputArea.appendChild(toolbar);
 
         const shell = this.doc.createElement('div');
-        shell.className = 'zeclau-input-shell';
+        shell.className = 'zoclau-input-shell';
 
         const chipRow = this.doc.createElement('div');
-        chipRow.className = 'zeclau-input-chip-row';
+        chipRow.className = 'zoclau-input-chip-row';
 
         const currentItemGroup = this.doc.createElement('div');
-        currentItemGroup.className = 'zeclau-current-item-group';
+        currentItemGroup.className = 'zoclau-current-item-group';
 
         this.currentItemChip = this.doc.createElement('button');
         this.currentItemChip.type = 'button';
-        this.currentItemChip.className = 'zeclau-current-item-chip zeclau-current-item-chip-inline';
+        this.currentItemChip.className = 'zoclau-current-item-chip zoclau-current-item-chip-inline';
         this.currentItemChip.addEventListener('click', () => {
             if (this.selectedItemContext) {
                 this.addSelectedPaperContext(this.selectedItemContext);
@@ -348,7 +348,7 @@ export class ChatPanel {
 
         this.currentItemClearBtn = this.doc.createElement('button');
         this.currentItemClearBtn.type = 'button';
-        this.currentItemClearBtn.className = 'zeclau-context-clear-btn';
+        this.currentItemClearBtn.className = 'zoclau-context-clear-btn';
         this.currentItemClearBtn.textContent = '×';
         this.currentItemClearBtn.title = '取消当前文献';
         this.currentItemClearBtn.addEventListener('click', (event) => {
@@ -362,10 +362,10 @@ export class ChatPanel {
         currentItemGroup.appendChild(this.currentItemClearBtn);
 
         this.selectedContextWrap = this.doc.createElement('div');
-        this.selectedContextWrap.className = 'zeclau-selected-context-wrap';
+        this.selectedContextWrap.className = 'zoclau-selected-context-wrap';
 
         this.localFilesWrap = this.doc.createElement('div');
-        this.localFilesWrap.className = 'zeclau-local-files-wrap';
+        this.localFilesWrap.className = 'zoclau-local-files-wrap';
 
         chipRow.appendChild(currentItemGroup);
         chipRow.appendChild(this.selectedContextWrap);
@@ -373,7 +373,7 @@ export class ChatPanel {
         shell.appendChild(chipRow);
 
         this.inputTextarea = this.doc.createElement('textarea');
-        this.inputTextarea.className = 'zeclau-input zeclau-input-embedded';
+        this.inputTextarea.className = 'zoclau-input zoclau-input-embedded';
         this.inputTextarea.placeholder = 'How can I help you today?';
         this.inputTextarea.rows = 2;
         this.inputTextarea.addEventListener('keydown', (e: KeyboardEvent) => {
@@ -439,30 +439,30 @@ export class ChatPanel {
         shell.appendChild(this.inputTextarea);
 
         this.mentionDropdown = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'div') as HTMLElement;
-        this.mentionDropdown.className = 'zeclau-mention-dropdown';
+        this.mentionDropdown.className = 'zoclau-mention-dropdown';
         this.mentionDropdown.style.display = 'none';
         shell.appendChild(this.mentionDropdown);
 
         const footer = this.doc.createElement('div');
-        footer.className = 'zeclau-input-footer';
+        footer.className = 'zoclau-input-footer';
 
         const footerLeft = this.doc.createElement('div');
-        footerLeft.className = 'zeclau-input-footer-left';
+        footerLeft.className = 'zoclau-input-footer-left';
 
         const newBtnFooter = this.doc.createElement('button');
         newBtnFooter.type = 'button';
-        newBtnFooter.className = 'zeclau-icon-btn zeclau-toolbar-btn zeclau-toolbar-btn-new';
+        newBtnFooter.className = 'zoclau-icon-btn zoclau-toolbar-btn zoclau-toolbar-btn-new';
         newBtnFooter.title = '新建会话';
         newBtnFooter.appendChild(this.createToolbarIcon('new'));
         newBtnFooter.addEventListener('click', () => this.newChat());
 
         const addFolderBtn = this.doc.createElement('button');
         addFolderBtn.type = 'button';
-        addFolderBtn.className = 'zeclau-icon-btn zeclau-file-picker-btn zeclau-toolbar-btn zeclau-toolbar-btn-folder';
+        addFolderBtn.className = 'zoclau-icon-btn zoclau-file-picker-btn zoclau-toolbar-btn zoclau-toolbar-btn-folder';
         addFolderBtn.title = '选择本地文件夹';
         addFolderBtn.appendChild(this.createToolbarIcon('folder'));
         const folderCountBadge = this.doc.createElement('span');
-        folderCountBadge.className = 'zeclau-folder-count-badge';
+        folderCountBadge.className = 'zoclau-folder-count-badge';
         folderCountBadge.style.display = 'none';
         addFolderBtn.appendChild(folderCountBadge);
         addFolderBtn.addEventListener('mouseenter', () => this.showExternalContextMenu());
@@ -476,10 +476,10 @@ export class ChatPanel {
         footerLeft.appendChild(addFolderBtn);
 
         const actionGroup = this.doc.createElement('div');
-        actionGroup.className = 'zeclau-input-action-group';
+        actionGroup.className = 'zoclau-input-action-group';
 
         this.stopButton = this.doc.createElement('button');
-        this.stopButton.className = 'zeclau-btn zeclau-btn-stop';
+        this.stopButton.className = 'zoclau-btn zoclau-btn-stop';
         this.stopButton.textContent = '停止';
         this.stopButton.style.display = 'none';
         this.stopButton.addEventListener('click', () => {
@@ -488,7 +488,7 @@ export class ChatPanel {
         });
 
         this.sendButton = this.doc.createElement('button');
-        this.sendButton.className = 'zeclau-btn zeclau-btn-send';
+        this.sendButton.className = 'zoclau-btn zoclau-btn-send';
         this.sendButton.textContent = '发送';
         this.sendButton.addEventListener('click', () => {
             void this.handleSend();
@@ -504,7 +504,7 @@ export class ChatPanel {
         inputArea.appendChild(shell);
 
         this.externalContextMenu = this.doc.createElement('div');
-        this.externalContextMenu.className = 'zeclau-external-context-menu';
+        this.externalContextMenu.className = 'zoclau-external-context-menu';
         this.externalContextMenu.style.display = 'none';
         this.externalContextMenu.addEventListener('mouseenter', () => this.clearExternalContextHideTimer());
         this.externalContextMenu.addEventListener('mouseleave', () => this.scheduleHideExternalContextMenu());
@@ -591,14 +591,14 @@ export class ChatPanel {
         if (!this.container) return;
 
         this.historyMenu = this.doc.createElement('div');
-        this.historyMenu.className = 'zeclau-history-menu';
+        this.historyMenu.className = 'zoclau-history-menu';
         this.historyMenu.style.display = 'none';
         this.container.appendChild(this.historyMenu);
     }
 
     private buildScrollRail(): HTMLElement {
         const rail = this.doc.createElement('div');
-        rail.className = 'zeclau-scroll-rail';
+        rail.className = 'zoclau-scroll-rail';
 
         this.scrollTopBtn = this.createScrollButton('Scroll to top', 'top', () => this.scrollMessages('top'));
 
@@ -618,7 +618,7 @@ export class ChatPanel {
     ): HTMLButtonElement {
         const btn = this.doc.createElement('button');
         btn.type = 'button';
-        btn.className = `zeclau-scroll-btn zeclau-scroll-btn-${kind}`;
+        btn.className = `zoclau-scroll-btn zoclau-scroll-btn-${kind}`;
         btn.title = title;
         btn.setAttribute('aria-label', title);
         btn.appendChild(this.createScrollIcon(kind));
@@ -636,12 +636,12 @@ export class ChatPanel {
         svg.setAttribute('stroke-width', '2.55');
         svg.setAttribute('stroke-linecap', 'round');
         svg.setAttribute('stroke-linejoin', 'round');
-        svg.classList.add('zeclau-scroll-btn-icon');
+        svg.classList.add('zoclau-scroll-btn-icon');
 
         const addPath = (d: string): void => {
             const path = this.doc.createElementNS(ns, 'path');
             path.setAttribute('d', d);
-            path.classList.add('zeclau-scroll-btn-line');
+            path.classList.add('zoclau-scroll-btn-line');
             svg.appendChild(path);
         };
 
@@ -666,12 +666,12 @@ export class ChatPanel {
         svg.setAttribute('stroke-width', '1.9');
         svg.setAttribute('stroke-linecap', 'round');
         svg.setAttribute('stroke-linejoin', 'round');
-        svg.classList.add('zeclau-toolbar-icon');
+        svg.classList.add('zoclau-toolbar-icon');
 
         const addPath = (d: string): void => {
             const path = this.doc.createElementNS(ns, 'path');
             path.setAttribute('d', d);
-            path.classList.add('zeclau-toolbar-icon-path');
+            path.classList.add('zoclau-toolbar-icon-path');
             svg.appendChild(path);
         };
 
@@ -759,7 +759,7 @@ export class ChatPanel {
 
         this.historyActiveIndex = -1;
         // Position above input area, aligned to input area width
-        const inputEl = this.container.querySelector('.zeclau-input-area') as HTMLElement | null;
+        const inputEl = this.container.querySelector('.zoclau-input-area') as HTMLElement | null;
         const bottomPx = inputEl ? inputEl.getBoundingClientRect().height + 16 : 60;
         this.historyMenu.style.position = 'absolute';
         this.historyMenu.style.bottom = `${bottomPx}px`;
@@ -802,7 +802,7 @@ export class ChatPanel {
 
     private getHistoryMenuItems(): HTMLButtonElement[] {
         if (!this.historyMenu) return [];
-        return Array.from(this.historyMenu.querySelectorAll('.zeclau-history-item')) as HTMLButtonElement[];
+        return Array.from(this.historyMenu.querySelectorAll('.zoclau-history-item')) as HTMLButtonElement[];
     }
 
     private ensureHistorySelection(): void {
@@ -818,13 +818,13 @@ export class ChatPanel {
         }
 
         items.forEach((item, index) => {
-            const row = item.closest('.zeclau-history-row');
+            const row = item.closest('.zoclau-history-row');
             const selected = index === this.historyActiveIndex;
             item.classList.toggle('is-active', selected);
             row?.classList.toggle('is-active', selected);
         });
 
-        this.scrollActiveOptionIntoView(this.historyMenu, '.zeclau-history-item.is-active');
+        this.scrollActiveOptionIntoView(this.historyMenu, '.zoclau-history-item.is-active');
     }
 
     private moveHistorySelection(delta: number): void {
@@ -866,7 +866,7 @@ export class ChatPanel {
         this.ensureHistorySelection();
         
 
-        const firstRow = this.historyMenu.querySelector('.zeclau-history-row') as HTMLElement | null;
+        const firstRow = this.historyMenu.querySelector('.zoclau-history-row') as HTMLElement | null;
         const measuredRowHeight = firstRow ? Math.round(firstRow.getBoundingClientRect().height) : 0;
         if (measuredRowHeight >= 20 && measuredRowHeight <= 80) {
             this.historyMenuRowHeight = measuredRowHeight;
@@ -880,7 +880,7 @@ export class ChatPanel {
 
         if (conversations.length === 0) {
             const empty = this.doc.createElement('div');
-            empty.className = 'zeclau-history-empty';
+            empty.className = 'zoclau-history-empty';
             empty.textContent = '暂无会话';
             this.historyMenu.appendChild(empty);
             this.applyHistoryMenuFixedHeight(this.historyMenuRowHeight);
@@ -891,14 +891,14 @@ export class ChatPanel {
 
         for (const [index, conv] of conversations.entries()) {
             const row = this.doc.createElement('div');
-            row.className = 'zeclau-history-row';
+            row.className = 'zoclau-history-row';
 
             const item = this.doc.createElementNS('http://www.w3.org/1999/xhtml', 'button') as HTMLButtonElement;
             item.type = 'button';
             item.style.display = 'block';
             item.style.width = '100%';
             item.style.margin = '0';
-            item.className = 'zeclau-history-item zeclau-mention-item';
+            item.className = 'zoclau-history-item zoclau-mention-item';
             item.dataset.conversationId = conv.id;
             if (conv.id === activeId) {
                 item.classList.add('is-active');
@@ -908,11 +908,11 @@ export class ChatPanel {
             item.title = conv.title;
 
             const title = this.doc.createElement('span');
-            title.className = 'zeclau-history-item-title';
+            title.className = 'zoclau-history-item-title';
             title.textContent = conv.title;
 
             const meta = this.doc.createElement('span');
-            meta.className = 'zeclau-history-item-time';
+            meta.className = 'zoclau-history-item-time';
             meta.textContent = this.formatConversationTime(conv.updatedAt);
 
             item.appendChild(title);
@@ -920,7 +920,7 @@ export class ChatPanel {
 
             const deleteBtn = this.doc.createElement('button');
             deleteBtn.type = 'button';
-            deleteBtn.className = 'zeclau-history-item-delete';
+            deleteBtn.className = 'zoclau-history-item-delete';
             deleteBtn.textContent = '×';
             deleteBtn.title = '删除会话';
             deleteBtn.addEventListener('click', (event) => {
@@ -942,7 +942,7 @@ export class ChatPanel {
 
         this.ensureHistorySelection();
 
-        const firstRow = this.historyMenu.querySelector('.zeclau-history-row') as HTMLElement | null;
+        const firstRow = this.historyMenu.querySelector('.zoclau-history-row') as HTMLElement | null;
         const measuredRowHeight = firstRow ? Math.round(firstRow.getBoundingClientRect().height) : 0;
         if (measuredRowHeight >= 20 && measuredRowHeight <= 80) {
             this.historyMenuRowHeight = measuredRowHeight;
@@ -1008,17 +1008,17 @@ export class ChatPanel {
                 const el = renderToolUse(block, this.doc);
                 // Group consecutive tool calls into one bubble
                 let group = this.messagesContainer.lastElementChild;
-                if (!group || !group.classList.contains('zeclau-tool-group')) {
+                if (!group || !group.classList.contains('zoclau-tool-group')) {
                     group = this.doc.createElement('div');
-                    group.className = 'zeclau-tool-group';
+                    group.className = 'zoclau-tool-group';
 
                     const header = this.doc.createElement('div');
-                    header.className = 'zeclau-tool-group-header';
+                    header.className = 'zoclau-tool-group-header';
                     const label = this.doc.createElement('span');
-                    label.className = 'zeclau-tool-group-label';
+                    label.className = 'zoclau-tool-group-label';
                     label.textContent = '工具调用';
                     const toggle = this.doc.createElement('button');
-                    toggle.className = 'zeclau-tool-group-toggle';
+                    toggle.className = 'zoclau-tool-group-toggle';
                     toggle.type = 'button';
                     toggle.textContent = '收起';
                     header.appendChild(label);
@@ -1026,7 +1026,7 @@ export class ChatPanel {
                     group.appendChild(header);
 
                     const body = this.doc.createElement('div');
-                    body.className = 'zeclau-tool-group-body';
+                    body.className = 'zoclau-tool-group-body';
                     group.appendChild(body);
 
                     toggle.addEventListener('click', () => {
@@ -1037,11 +1037,11 @@ export class ChatPanel {
 
                     this.messagesContainer.appendChild(group);
                 }
-                const body = group.querySelector('.zeclau-tool-group-body');
+                const body = group.querySelector('.zoclau-tool-group-body');
                 (body || group).appendChild(el);
                 // Update count in label
-                const label = group.querySelector('.zeclau-tool-group-label');
-                const count = (body || group).querySelectorAll('.zeclau-tool-use').length;
+                const label = group.querySelector('.zoclau-tool-group-label');
+                const count = (body || group).querySelectorAll('.zoclau-tool-use').length;
                 if (label && count > 0) {
                     label.textContent = `工具调用 (${count})`;
                 }
@@ -1053,17 +1053,17 @@ export class ChatPanel {
             if (this.messagesContainer) {
                 // Find matching tool_use element and update it inline
                 const toolEl = this.messagesContainer.querySelector(
-                    `.zeclau-tool-use[data-tool-id="${block.toolUseId}"]`
+                    `.zoclau-tool-use[data-tool-id="${block.toolUseId}"]`
                 );
                 if (toolEl) {
-                    const status = toolEl.querySelector('.zeclau-tool-status');
+                    const status = toolEl.querySelector('.zoclau-tool-status');
                     if (status) {
                         status.textContent = block.isError ? '错误' : '完成';
-                        status.className = `zeclau-tool-status ${block.isError ? 'zeclau-tool-status-error' : 'zeclau-tool-status-completed'}`;
+                        status.className = `zoclau-tool-status ${block.isError ? 'zoclau-tool-status-error' : 'zoclau-tool-status-completed'}`;
                     }
                     if (block.content) {
                         const content = this.doc.createElement('pre');
-                        content.className = 'zeclau-tool-result-text';
+                        content.className = 'zoclau-tool-result-text';
                         content.textContent = block.content.length > 1200
                             ? block.content.substring(0, 1200) + '...'
                             : block.content;
@@ -1246,14 +1246,14 @@ export class ChatPanel {
 
     private createWelcomeEl(): HTMLElement {
         const wrap = this.doc.createElement('div');
-        wrap.className = 'zeclau-welcome';
+        wrap.className = 'zoclau-welcome';
 
         const title = this.doc.createElement('div');
-        title.className = 'zeclau-welcome-title';
+        title.className = 'zoclau-welcome-title';
         title.textContent = 'Hi, 我是 Zoclau';
 
         const subtitle = this.doc.createElement('div');
-        subtitle.className = 'zeclau-welcome-subtitle';
+        subtitle.className = 'zoclau-welcome-subtitle';
         subtitle.textContent = '默认选择当前文献，\n或输入 @ 来引用当前文件夹中的论文。';
 
         wrap.appendChild(title);
@@ -1503,16 +1503,16 @@ export class ChatPanel {
 
         for (const ctx of this.selectedPaperContexts) {
             const chip = this.doc.createElement('span');
-            chip.className = 'zeclau-paper-chip';
+            chip.className = 'zoclau-paper-chip';
             chip.title = ctx.title;
 
             const label = this.doc.createElement('span');
-            label.className = 'zeclau-paper-chip-label';
+            label.className = 'zoclau-paper-chip-label';
             label.textContent = this.truncateText(ctx.title, 30);
 
             const removeBtn = this.doc.createElement('button');
             removeBtn.type = 'button';
-            removeBtn.className = 'zeclau-paper-chip-remove';
+            removeBtn.className = 'zoclau-paper-chip-remove';
             removeBtn.textContent = '×';
             removeBtn.title = '移除论文';
             removeBtn.addEventListener('click', (event) => {
@@ -1686,32 +1686,32 @@ export class ChatPanel {
         this.updateFolderPickerState(folders.length);
 
         const header = this.doc.createElement('div');
-        header.className = 'zeclau-external-context-header';
+        header.className = 'zoclau-external-context-header';
         header.textContent = '本地文件夹';
         this.externalContextMenu.appendChild(header);
         if (folders.length === 0) {
             const empty = this.doc.createElement('div');
-            empty.className = 'zeclau-external-context-empty';
+            empty.className = 'zoclau-external-context-empty';
             empty.textContent = '点击文件夹图标添加';
             this.externalContextMenu.appendChild(empty);
             return;
         }
 
         const list = this.doc.createElement('div');
-        list.className = 'zeclau-external-context-list';
+        list.className = 'zoclau-external-context-list';
 
         for (const folderPath of folders) {
             const row = this.doc.createElement('div');
-            row.className = 'zeclau-external-context-item';
+            row.className = 'zoclau-external-context-item';
 
             const label = this.doc.createElement('div');
-            label.className = 'zeclau-external-context-path';
+            label.className = 'zoclau-external-context-path';
             label.textContent = folderPath;
             label.title = folderPath;
 
             const removeBtn = this.doc.createElement('button');
             removeBtn.type = 'button';
-            removeBtn.className = 'zeclau-external-context-remove';
+            removeBtn.className = 'zoclau-external-context-remove';
             removeBtn.title = '移除文件夹';
             removeBtn.textContent = '×';
             removeBtn.addEventListener('click', (event) => {
@@ -2135,7 +2135,7 @@ export class ChatPanel {
             item.style.display = 'block';
             item.style.width = '100%';
             item.style.margin = '0';
-            item.className = 'zeclau-mention-item';
+            item.className = 'zoclau-mention-item';
             if (index === this.mentionActiveIndex) {
                 item.classList.add('is-active');
             }
@@ -2159,7 +2159,7 @@ export class ChatPanel {
         this.mentionDropdown.style.removeProperty('top');
         this.mentionDropdown.style.removeProperty('right');
         this.mentionDropdown.style.removeProperty('bottom');
-        this.scrollActiveOptionIntoView(this.mentionDropdown, '.zeclau-mention-item.is-active');
+        this.scrollActiveOptionIntoView(this.mentionDropdown, '.zoclau-mention-item.is-active');
     }
 
     private scrollActiveOptionIntoView(container: HTMLElement | null, selector: string): void {
@@ -2368,7 +2368,7 @@ export class ChatPanel {
         const group = this.currentItemChip.parentElement as HTMLElement | null;
         const setGroupHidden = (hidden: boolean): void => {
             if (!group) return;
-            group.classList.toggle('zeclau-current-item-group-hidden', hidden);
+            group.classList.toggle('zoclau-current-item-group-hidden', hidden);
         };
 
         // If papers are already selected, hide the placeholder chip row entirely.
@@ -2382,7 +2382,7 @@ export class ChatPanel {
 
         setGroupHidden(false);
 
-        const samplePaperChip = this.selectedContextWrap?.querySelector('.zeclau-paper-chip') as HTMLElement | null;
+        const samplePaperChip = this.selectedContextWrap?.querySelector('.zoclau-paper-chip') as HTMLElement | null;
         if (samplePaperChip && group) {
             const view = this.doc.defaultView;
             const sampleStyle = view ? view.getComputedStyle(samplePaperChip) : null;
@@ -2729,11 +2729,11 @@ export class ChatPanel {
 
     private setLiveState(state: 'ready' | 'thinking' | 'error'): void {
         if (!this.statusDot) return;
-        this.statusDot.classList.remove('zeclau-live-dot-thinking', 'zeclau-live-dot-error');
+        this.statusDot.classList.remove('zoclau-live-dot-thinking', 'zoclau-live-dot-error');
         if (state === 'thinking') {
-            this.statusDot.classList.add('zeclau-live-dot-thinking');
+            this.statusDot.classList.add('zoclau-live-dot-thinking');
         } else if (state === 'error') {
-            this.statusDot.classList.add('zeclau-live-dot-error');
+            this.statusDot.classList.add('zoclau-live-dot-error');
         }
     }
 

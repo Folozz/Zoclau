@@ -1,9 +1,9 @@
-﻿<vbox id="zotero-prefpane-zoclau"
+<vbox id="zotero-prefpane-zoclau"
       xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
       flex="1">
   <script src="chrome://zotero/content/include.js"/>
-  <script src="chrome://zeclau/content/preferences.js"/>
+  <script src="chrome://zoclau/content/preferences.js"/>
 
   <html:style>
     #zotero-prefpane-zoclau {
@@ -157,7 +157,7 @@
 
   <html:div class="zc-shell">
     <html:div class="zc-hero">
-      <html:img class="zc-logo" src="chrome://zeclau/content/icons/zoclau-96.png" alt="Zoclau 图标" />
+      <html:img class="zc-logo" src="chrome://zoclau/content/icons/zoclau-96.png" alt="Zoclau 图标" />
       <html:div>
         <html:h2 class="zc-title">Zoclau</html:h2>
         <html:p class="zc-subtitle">Zotero 内的 Claude 工作区助手</html:p>
@@ -170,7 +170,7 @@
 
       <hbox class="zc-row" align="center">
         <label class="zc-label" value="模型" />
-        <menulist id="zeclau-pref-model" flex="1">
+        <menulist id="zoclau-pref-model" flex="1">
           <menupopup>
             <menuitem label="自动（使用 Claude 设置）" value="auto" />
             <menuitem label="Haiku（快速）" value="haiku" />
@@ -182,7 +182,7 @@
 
       <hbox class="zc-row" align="center">
         <label class="zc-label" value="思考预算" />
-        <menulist id="zeclau-pref-thinking" flex="1">
+        <menulist id="zoclau-pref-thinking" flex="1">
           <menupopup>
             <menuitem label="关闭" value="off" />
             <menuitem label="低（1K tokens）" value="low" />
@@ -200,17 +200,17 @@
 
       <hbox class="zc-row" align="center">
         <label class="zc-label" value="CLI 路径" />
-        <textbox id="zeclau-pref-clipath" flex="1" placeholder="自动检测（留空）" />
+        <textbox id="zoclau-pref-clipath" flex="1" placeholder="自动检测（留空）" />
       </hbox>
 
       <hbox class="zc-row" align="center">
         <label class="zc-label" value="工作目录" />
-        <textbox id="zeclau-pref-workdir" flex="1" placeholder="默认：Zotero 配置目录" />
+        <textbox id="zoclau-pref-workdir" flex="1" placeholder="默认：Zotero 配置目录" />
       </hbox>
 
       <hbox class="zc-row" align="center">
         <label class="zc-label" value="权限模式" />
-        <menulist id="zeclau-pref-permission" flex="1">
+        <menulist id="zoclau-pref-permission" flex="1">
           <menupopup>
             <menuitem label="YOLO（不提示）" value="yolo" />
             <menuitem label="安全（需要确认）" value="normal" />
@@ -226,33 +226,33 @@
 
       <hbox class="zc-row" align="center">
         <label class="zc-label" value="用户名" />
-        <textbox id="zeclau-pref-username" flex="1" placeholder="你的名字（用于个性化回复）" />
+        <textbox id="zoclau-pref-username" flex="1" placeholder="你的名字（用于个性化回复）" />
       </hbox>
 
       <hbox class="zc-row-top" align="start">
         <label class="zc-label" value="系统提示词" />
-        <textbox id="zeclau-pref-systemprompt" multiline="true" rows="4" flex="1" placeholder="给 Claude 的额外指令..." />
+        <textbox id="zoclau-pref-systemprompt" multiline="true" rows="4" flex="1" placeholder="给 Claude 的额外指令..." />
       </hbox>
 
       <html:div class="zc-divider"></html:div>
 
       <hbox class="zc-row-top" align="start">
         <label class="zc-label" value="环境变量" />
-        <textbox id="zeclau-pref-envvars" multiline="true" rows="4" flex="1" placeholder="ANTHROPIC_API_KEY=...&#10;ANTHROPIC_BASE_URL=..." />
+        <textbox id="zoclau-pref-envvars" multiline="true" rows="4" flex="1" placeholder="ANTHROPIC_API_KEY=...&#10;ANTHROPIC_BASE_URL=..." />
       </hbox>
     </groupbox>
 
     <groupbox class="zc-card">
       <label class="zc-card-title" value="界面" />
       <hbox class="zc-row-inline" align="center">
-        <checkbox id="zeclau-pref-autoscroll" label="流式输出时自动滚动" native="true" />
-        <checkbox id="zeclau-pref-blocklist" label="启用命令安全拦截列表" native="true" />
+        <checkbox id="zoclau-pref-autoscroll" label="流式输出时自动滚动" native="true" />
+        <checkbox id="zoclau-pref-blocklist" label="启用命令安全拦截列表" native="true" />
       </hbox>
 
       <hbox class="zc-actions" align="center">
-        <button id="zeclau-pref-save" label="保存设置" />
-        <button id="zeclau-pref-reload" label="重新加载" />
-        <label id="zeclau-pref-status" class="zc-status" value="" />
+        <button id="zoclau-pref-save" label="保存设置" />
+        <button id="zoclau-pref-reload" label="重新加载" />
+        <label id="zoclau-pref-status" class="zc-status" value="" />
       </hbox>
     </groupbox>
 

@@ -1,15 +1,19 @@
-﻿/**
+/**
  * Preference helpers for Zoclau.
  * Uses Zotero.Prefs to read/write preferences with compatibility fallbacks.
  */
 
-import type { ZeClauSettings, ConversationMeta, ChatMessage } from './types';
+import type { ZoclauSettings, ConversationMeta, ChatMessage } from './types';
 import { DEFAULT_SETTINGS } from './types';
 
 declare const Zotero: any;
 
-const PREF_PREFIX = 'extensions.zotero.zeclau';
-const LEGACY_PREF_PREFIX = 'zeclau';
+const PREF_PREFIX = 'extensions.zotero.zoclau';
+const LEGACY_PREF_PREFIXES: Array<{ prefix: string; global: boolean }> = [
+    { prefix: 'extensions.zotero.zeclau', global: true },
+    { prefix: 'zoclau', global: false },
+    { prefix: 'zeclau', global: false },
+];
 
 function getPref(key: string): any {
     try {
@@ -19,24 +23,39 @@ function getPref(key: string): any {
             return direct;
         }
 
-        // Compatibility fallback for older branch access.
-        return Zotero.Prefs.get(`${LEGACY_PREF_PREFIX}.${key}`);
+        for (const legacy of LEGACY_PREF_PREFIXES) {
+            const legacyKey = `${legacy.prefix}.${key}`;
+            const legacyValue = legacy.global
+                ? Zotero.Prefs.get(legacyKey, true)
+                : Zotero.Prefs.get(legacyKey);
+            if (legacyValue !== undefined) {
+                return legacyValue;
+            }
+        }
     } catch {
-        return undefined;
+        // ignore and fall through
     }
+    return undefined;
 }
 
 function setPref(key: string, value: any): void {
     try {
         Zotero.Prefs.set(`${PREF_PREFIX}.${key}`, value, true);
-        // Compatibility write to non-global branch variant.
-        Zotero.Prefs.set(`${LEGACY_PREF_PREFIX}.${key}`, value);
+        // Keep legacy branches in sync for downgrade compatibility.
+        for (const legacy of LEGACY_PREF_PREFIXES) {
+            const legacyKey = `${legacy.prefix}.${key}`;
+            if (legacy.global) {
+                Zotero.Prefs.set(legacyKey, value, true);
+            } else {
+                Zotero.Prefs.set(legacyKey, value);
+            }
+        }
     } catch (e) {
         Zotero.debug(`[Zoclau] Failed to set pref ${key}: ${e}`);
     }
 }
 
-export function loadSettings(): ZeClauSettings {
+export function loadSettings(): ZoclauSettings {
     return {
         userName: getPref('userName') ?? DEFAULT_SETTINGS.userName,
         model: getPref('model') ?? DEFAULT_SETTINGS.model,
@@ -51,9 +70,9 @@ export function loadSettings(): ZeClauSettings {
     };
 }
 
-export function saveSetting<K extends keyof ZeClauSettings>(
+export function saveSetting<K extends keyof ZoclauSettings>(
     key: K,
-    value: ZeClauSettings[K]
+    value: ZoclauSettings[K]
 ): void {
     setPref(key, value);
 }

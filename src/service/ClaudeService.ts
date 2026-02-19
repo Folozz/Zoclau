@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ClaudeService - Claude Agent SDK wrapper for Zoclau.
  *
  * Uses Zotero's Subprocess API (Mozilla nsIProcess) instead of Node.js
@@ -6,7 +6,7 @@
  */
 
 import type {
-    ZeClauSettings,
+    ZoclauSettings,
     ChatMessage,
     ToolUseBlock,
     ToolResultBlock,
@@ -44,7 +44,7 @@ interface StreamState {
  * Uses Mozilla's nsIProcess for spawning the CLI process.
  */
 export class ClaudeService {
-    private settings: ZeClauSettings;
+    private settings: ZoclauSettings;
     private sessionByConversation = new Map<string, string>();
     private isRunning = false;
     private currentProcess: any = null;
@@ -59,11 +59,11 @@ export class ClaudeService {
     private onStreamStartCallback: (() => void) | null = null;
     private onStreamEndCallback: (() => void) | null = null;
 
-    constructor(settings: ZeClauSettings) {
+    constructor(settings: ZoclauSettings) {
         this.settings = settings;
     }
 
-    updateSettings(settings: ZeClauSettings): void {
+    updateSettings(settings: ZoclauSettings): void {
         this.settings = settings;
     }
 

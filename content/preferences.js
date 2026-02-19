@@ -1,27 +1,32 @@
-﻿/**
+/**
  * Zoclau Preferences Pane Script.
  */
 
-const ZECLAU_PREF_PREFIX = 'extensions.zotero.zeclau.';
+const ZOCLAU_PREF_PREFIX = 'extensions.zotero.zoclau.';
+const LEGACY_PREF_SOURCES = [
+    { prefix: 'extensions.zotero.zeclau.', global: true },
+    { prefix: 'zoclau.', global: false },
+    { prefix: 'zeclau.', global: false },
+];
 const PREF_CONTROL_IDS = [
-    'zeclau-pref-model',
-    'zeclau-pref-thinking',
-    'zeclau-pref-clipath',
-    'zeclau-pref-workdir',
-    'zeclau-pref-permission',
-    'zeclau-pref-username',
-    'zeclau-pref-systemprompt',
-    'zeclau-pref-envvars',
-    'zeclau-pref-autoscroll',
-    'zeclau-pref-blocklist',
+    'zoclau-pref-model',
+    'zoclau-pref-thinking',
+    'zoclau-pref-clipath',
+    'zoclau-pref-workdir',
+    'zoclau-pref-permission',
+    'zoclau-pref-username',
+    'zoclau-pref-systemprompt',
+    'zoclau-pref-envvars',
+    'zoclau-pref-autoscroll',
+    'zoclau-pref-blocklist',
 ];
 
 let autoSaveTimer = null;
 
-function zeclauPrefLog(message) {
+function zoclauPrefLog(message) {
     try {
         var file = Services.dirsvc.get('ProfD', Components.interfaces.nsIFile);
-        file.append('zeclau-debug.log');
+        file.append('zoclau-debug.log');
 
         var foStream = Components.classes['@mozilla.org/network/file-output-stream;1']
             .createInstance(Components.interfaces.nsIFileOutputStream);
@@ -48,26 +53,41 @@ function flushPrefs() {
 
 function getPref(key, fallback) {
     try {
-        const fullKey = ZECLAU_PREF_PREFIX + key;
+        const fullKey = ZOCLAU_PREF_PREFIX + key;
         const direct = Zotero.Prefs.get(fullKey, true);
         if (direct !== undefined && direct !== null) {
             return direct;
         }
 
-        const legacy = Zotero.Prefs.get('zeclau.' + key);
-        return legacy === undefined || legacy === null ? fallback : legacy;
+        for (const source of LEGACY_PREF_SOURCES) {
+            const legacyKey = source.prefix + key;
+            const legacy = source.global
+                ? Zotero.Prefs.get(legacyKey, true)
+                : Zotero.Prefs.get(legacyKey);
+            if (legacy !== undefined && legacy !== null) {
+                return legacy;
+            }
+        }
     } catch {
-        return fallback;
+        // ignore and use fallback
     }
+    return fallback;
 }
 
 function setPref(key, value) {
-    Zotero.Prefs.set(ZECLAU_PREF_PREFIX + key, value, true);
-    Zotero.Prefs.set('zeclau.' + key, value);
+    Zotero.Prefs.set(ZOCLAU_PREF_PREFIX + key, value, true);
+    for (const source of LEGACY_PREF_SOURCES) {
+        const legacyKey = source.prefix + key;
+        if (source.global) {
+            Zotero.Prefs.set(legacyKey, value, true);
+        } else {
+            Zotero.Prefs.set(legacyKey, value);
+        }
+    }
 }
 
 function setStatus(text, isError) {
-    var statusEl = document.getElementById('zeclau-pref-status');
+    var statusEl = document.getElementById('zoclau-pref-status');
     if (!statusEl) return;
 
     statusEl.setAttribute('value', text || '');
@@ -124,29 +144,29 @@ function writeCheckbox(id, value, fallback) {
 }
 
 function loadValues() {
-    writeMenulist('zeclau-pref-model', getPref('model', 'auto'), 'auto');
-    writeMenulist('zeclau-pref-thinking', getPref('thinkingBudget', 'off'), 'off');
-    writeTextbox('zeclau-pref-clipath', getPref('claudeCliPath', ''));
-    writeTextbox('zeclau-pref-workdir', getPref('workingDirectory', ''));
-    writeMenulist('zeclau-pref-permission', getPref('permissionMode', 'yolo'), 'yolo');
-    writeTextbox('zeclau-pref-username', getPref('userName', ''));
-    writeTextbox('zeclau-pref-systemprompt', getPref('systemPrompt', ''));
-    writeTextbox('zeclau-pref-envvars', getPref('environmentVariables', ''));
-    writeCheckbox('zeclau-pref-autoscroll', getPref('enableAutoScroll', true), true);
-    writeCheckbox('zeclau-pref-blocklist', getPref('enableBlocklist', true), true);
+    writeMenulist('zoclau-pref-model', getPref('model', 'auto'), 'auto');
+    writeMenulist('zoclau-pref-thinking', getPref('thinkingBudget', 'off'), 'off');
+    writeTextbox('zoclau-pref-clipath', getPref('claudeCliPath', ''));
+    writeTextbox('zoclau-pref-workdir', getPref('workingDirectory', ''));
+    writeMenulist('zoclau-pref-permission', getPref('permissionMode', 'yolo'), 'yolo');
+    writeTextbox('zoclau-pref-username', getPref('userName', ''));
+    writeTextbox('zoclau-pref-systemprompt', getPref('systemPrompt', ''));
+    writeTextbox('zoclau-pref-envvars', getPref('environmentVariables', ''));
+    writeCheckbox('zoclau-pref-autoscroll', getPref('enableAutoScroll', true), true);
+    writeCheckbox('zoclau-pref-blocklist', getPref('enableBlocklist', true), true);
 }
 
 function saveValues() {
-    setPref('model', readMenulist('zeclau-pref-model', 'auto'));
-    setPref('thinkingBudget', readMenulist('zeclau-pref-thinking', 'off'));
-    setPref('claudeCliPath', readTextbox('zeclau-pref-clipath').trim());
-    setPref('workingDirectory', readTextbox('zeclau-pref-workdir').trim());
-    setPref('permissionMode', readMenulist('zeclau-pref-permission', 'yolo'));
-    setPref('userName', readTextbox('zeclau-pref-username').trim());
-    setPref('systemPrompt', readTextbox('zeclau-pref-systemprompt'));
-    setPref('environmentVariables', readTextbox('zeclau-pref-envvars'));
-    setPref('enableAutoScroll', readCheckbox('zeclau-pref-autoscroll', true));
-    setPref('enableBlocklist', readCheckbox('zeclau-pref-blocklist', true));
+    setPref('model', readMenulist('zoclau-pref-model', 'auto'));
+    setPref('thinkingBudget', readMenulist('zoclau-pref-thinking', 'off'));
+    setPref('claudeCliPath', readTextbox('zoclau-pref-clipath').trim());
+    setPref('workingDirectory', readTextbox('zoclau-pref-workdir').trim());
+    setPref('permissionMode', readMenulist('zoclau-pref-permission', 'yolo'));
+    setPref('userName', readTextbox('zoclau-pref-username').trim());
+    setPref('systemPrompt', readTextbox('zoclau-pref-systemprompt'));
+    setPref('environmentVariables', readTextbox('zoclau-pref-envvars'));
+    setPref('enableAutoScroll', readCheckbox('zoclau-pref-autoscroll', true));
+    setPref('enableBlocklist', readCheckbox('zoclau-pref-blocklist', true));
 }
 
 function persistNow(statusText) {
@@ -164,10 +184,10 @@ function scheduleAutoSave() {
         autoSaveTimer = null;
         try {
             persistNow('已自动保存。');
-            zeclauPrefLog('auto-saved');
+            zoclauPrefLog('auto-saved');
         } catch (e) {
             setStatus('自动保存失败：' + e, true);
-            zeclauPrefLog('auto-save failed: ' + e);
+            zoclauPrefLog('auto-save failed: ' + e);
         }
     }, 260);
 }
@@ -193,34 +213,34 @@ function bindControlAutoSave() {
 }
 
 // eslint-disable-next-line no-unused-vars
-var ZeClauPreferences = {
+var ZoclauPreferences = {
     initialized: false,
 
     init: function () {
         if (this.initialized) return;
         this.initialized = true;
 
-        zeclauPrefLog('preferences init');
+        zoclauPrefLog('preferences init');
 
         loadValues();
         bindControlAutoSave();
 
-        const saveBtn = byId('zeclau-pref-save');
+        const saveBtn = byId('zoclau-pref-save');
         bindAction(saveBtn, function () {
             try {
                 persistNow('设置已保存。');
-                zeclauPrefLog('settings saved');
+                zoclauPrefLog('settings saved');
             } catch (e) {
                 setStatus('保存失败：' + e, true);
-                zeclauPrefLog('save failed: ' + e);
+                zoclauPrefLog('save failed: ' + e);
             }
         });
 
-        const reloadBtn = byId('zeclau-pref-reload');
+        const reloadBtn = byId('zoclau-pref-reload');
         bindAction(reloadBtn, function () {
             loadValues();
             setStatus('已从偏好设置重新加载。', false);
-            zeclauPrefLog('settings reloaded');
+            zoclauPrefLog('settings reloaded');
         });
 
         try {
@@ -231,13 +251,13 @@ var ZeClauPreferences = {
     },
 };
 
-zeclauPrefLog('preferences script loaded');
+zoclauPrefLog('preferences script loaded');
 
 function ensureInit() {
     try {
-        ZeClauPreferences.init();
+        ZoclauPreferences.init();
     } catch (e) {
-        zeclauPrefLog('init failed: ' + e);
+        zoclauPrefLog('init failed: ' + e);
     }
 }
 
@@ -248,7 +268,7 @@ if (document.readyState === 'interactive' || document.readyState === 'complete')
 window.addEventListener('load', ensureInit, { once: true });
 
 window.addEventListener('unload', function () {
-    if (!ZeClauPreferences.initialized) return;
+    if (!ZoclauPreferences.initialized) return;
     try {
         if (autoSaveTimer) {
             clearTimeout(autoSaveTimer);
@@ -256,7 +276,7 @@ window.addEventListener('unload', function () {
         }
         saveValues();
         flushPrefs();
-        zeclauPrefLog('settings flushed on unload');
+        zoclauPrefLog('settings flushed on unload');
     } catch {
         // ignore
     }

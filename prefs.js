@@ -1,13 +1,13 @@
 // Zoclau default preferences
-pref("extensions.zotero.zeclau.model", "sonnet");
-pref("extensions.zotero.zeclau.thinkingBudget", "off");
-pref("extensions.zotero.zeclau.systemPrompt", "");
-pref("extensions.zotero.zeclau.environmentVariables", "");
-pref("extensions.zotero.zeclau.claudeCliPath", "");
-pref("extensions.zotero.zeclau.workingDirectory", "");
-pref("extensions.zotero.zeclau.permissionMode", "yolo");
-pref("extensions.zotero.zeclau.userName", "");
-pref("extensions.zotero.zeclau.enableAutoScroll", true);
-pref("extensions.zotero.zeclau.enableBlocklist", true);
-pref("extensions.zotero.zeclau.conversations", "[]");
+pref("extensions.zotero.zoclau.model", "sonnet");
+pref("extensions.zotero.zoclau.thinkingBudget", "off");
+pref("extensions.zotero.zoclau.systemPrompt", "");
+pref("extensions.zotero.zoclau.environmentVariables", "");
+pref("extensions.zotero.zoclau.claudeCliPath", "");
+pref("extensions.zotero.zoclau.workingDirectory", "");
+pref("extensions.zotero.zoclau.permissionMode", "yolo");
+pref("extensions.zotero.zoclau.userName", "");
+pref("extensions.zotero.zoclau.enableAutoScroll", true);
+pref("extensions.zotero.zoclau.enableBlocklist", true);
+pref("extensions.zotero.zoclau.conversations", "[]");
 

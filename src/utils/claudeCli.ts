@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Claude CLI path detection utilities.
  * Uses Zotero/Mozilla APIs instead of Node.js fs/path/os.
  */

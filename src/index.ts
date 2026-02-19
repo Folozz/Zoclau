@@ -9,14 +9,14 @@ import { ClaudeService } from './service/ClaudeService';
 import { ChatPanel } from './ui/ChatPanel';
 import { ConversationManager } from './ui/ConversationManager';
 import { loadSettings, saveSetting } from './settings/prefs';
-import type { ZeClauSettings } from './settings/types';
+import type { ZoclauSettings } from './settings/types';
 import { findClaudeCli } from './utils/claudeCli';
 
 declare const Zotero: any;
 declare const Services: any;
 declare const Components: any;
 
-const CONTENT_BASE_URI = 'chrome://zeclau/content/';
+const CONTENT_BASE_URI = 'chrome://zoclau/content/';
 const DISPLAY_NAME = 'Zoclau';
 const SIDENAV_L10N_ID = 'zoclau-sidebar-sidenav';
 const HEADER_L10N_ID = 'zoclau-sidebar-header';
@@ -39,14 +39,14 @@ function log(msg: string): void {
 // Plugin state
 let pluginId: string;
 let pluginVersion: string;
-let settings: ZeClauSettings;
+let settings: ZoclauSettings;
 let service: ClaudeService;
 let conversationManager: ConversationManager;
 let styleSheetURI: string;
 let sectionKey: string | false | null = null;
 
-const SETTINGS_PREF_BRANCH = 'extensions.zotero.zeclau';
-const SETTINGS_KEYS: (keyof ZeClauSettings)[] = [
+const SETTINGS_PREF_BRANCH = 'extensions.zotero.zoclau';
+const SETTINGS_KEYS: (keyof ZoclauSettings)[] = [
     'userName',
     'model',
     'thinkingBudget',
@@ -194,7 +194,7 @@ function mountChatPanel(body: any): ChatPanel | null {
     const doc = hostBody.ownerDocument;
 
     const container = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div') as HTMLElement;
-    container.setAttribute('id', 'zeclau-itempane-root');
+    container.setAttribute('id', 'zoclau-itempane-root');
     container.style.position = 'absolute';
     container.style.top = '0';
     container.style.left = '0';
@@ -240,7 +240,7 @@ function applySectionChrome(doc: Document, setSectionSummary?: ((summary: string
         try {
             const header = doc.querySelector(`[data-l10n-id="${HEADER_L10N_ID}"]`) as HTMLElement | null;
             if (header) {
-                header.classList.add('zeclau-pane-chrome-header');
+                header.classList.add('zoclau-pane-chrome-header');
                 header.setAttribute('title', DISPLAY_NAME);
                 header.setAttribute('aria-label', DISPLAY_NAME);
                 // Ensure top header shows "icon + Zoclau" even when l10n string is unresolved.
@@ -254,17 +254,17 @@ function applySectionChrome(doc: Document, setSectionSummary?: ((summary: string
                 header.style.setProperty('white-space', 'nowrap', 'important');
 
                 const headerText = (header.textContent || '').replace(/\s+/g, ' ').trim();
-                const existingFallback = header.querySelector('.zeclau-pane-header-text') as HTMLElement | null;
+                const existingFallback = header.querySelector('.zoclau-pane-header-text') as HTMLElement | null;
                 if (!headerText && !existingFallback) {
                     const fallback = doc.createElementNS('http://www.w3.org/1999/xhtml', 'span') as HTMLElement;
-                    fallback.className = 'zeclau-pane-header-text';
+                    fallback.className = 'zoclau-pane-header-text';
                     fallback.textContent = DISPLAY_NAME;
                     header.appendChild(fallback);
                 }
 
                 const row = (header.closest('[class*="header"]') as HTMLElement | null) || header.parentElement;
                 if (row) {
-                    row.classList.add('zeclau-pane-header-row');
+                    row.classList.add('zoclau-pane-header-row');
                     row.style.setProperty('display', '-moz-box', 'important');
                     row.style.setProperty('-moz-box-pack', 'start', 'important');
                     row.style.setProperty('-moz-box-align', 'center', 'important');
@@ -288,13 +288,13 @@ function applySectionChrome(doc: Document, setSectionSummary?: ((summary: string
 
             const sidenav = doc.querySelector(`[data-l10n-id="${SIDENAV_L10N_ID}"]`) as HTMLElement | null;
             if (sidenav) {
-                sidenav.classList.add('zeclau-pane-chrome-sidenav');
+                sidenav.classList.add('zoclau-pane-chrome-sidenav');
                 sidenav.setAttribute('title', DISPLAY_NAME);
                 sidenav.setAttribute('aria-label', DISPLAY_NAME);
                 // Do not show duplicated text in the right-side vertical sidenav icon list.
                 sidenav.removeAttribute('label');
                 sidenav.removeAttribute('value');
-                const existingSideFallback = sidenav.querySelector('.zeclau-pane-sidenav-text') as HTMLElement | null;
+                const existingSideFallback = sidenav.querySelector('.zoclau-pane-sidenav-text') as HTMLElement | null;
                 if (existingSideFallback) {
                     existingSideFallback.remove();
                 }
@@ -321,7 +321,7 @@ function applySectionChrome(doc: Document, setSectionSummary?: ((summary: string
 export async function init(params: { id: string; version: string; rootURI: string }): Promise<void> {
     pluginId = params.id;
     pluginVersion = params.version;
-    styleSheetURI = CONTENT_BASE_URI + 'Zoclau.css';
+    styleSheetURI = CONTENT_BASE_URI + 'zoclau.css';
 
     log(`Initializing ${DISPLAY_NAME} v${pluginVersion}`);
 
@@ -434,7 +434,7 @@ function registerItemPaneSection(): void {
 
     try {
         sectionKey = Zotero.ItemPaneManager.registerSection({
-            paneID: 'zeclau-sidebar',
+            paneID: 'zoclau-sidebar',
             pluginID: pluginId,
             header: {
                 icon,

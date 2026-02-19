@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ConversationManager - Manages conversation CRUD operations.
  */
 

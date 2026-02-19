@@ -5,8 +5,8 @@ const fs = require('fs');
 const path = require('path');
 
 const addonDir = path.resolve(__dirname, 'build', 'addon');
-const xpiFile = path.resolve(__dirname, 'zeclau.xpi');
-const zipFile = path.resolve(__dirname, 'zeclau_temp.zip');
+const xpiFile = path.resolve(__dirname, 'zoclau.xpi');
+const zipFile = path.resolve(__dirname, 'zoclau_temp.zip');
 
 // Clean up
 if (fs.existsSync(xpiFile)) fs.unlinkSync(xpiFile);

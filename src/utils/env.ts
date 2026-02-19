@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Environment variable parsing and model helpers.
  * Adapted from Claudian for consistency.
  */

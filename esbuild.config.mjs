@@ -1,7 +1,7 @@
 import esbuild from 'esbuild';
 import path from 'path';
 import process from 'process';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync } from 'fs';
 
 const prod = process.argv[2] === 'production';
 
@@ -25,7 +25,7 @@ function copyStaticFiles() {
         ['prefs.js', 'build/addon/prefs.js'],
         ['content/preferences.xhtml', 'build/addon/content/preferences.xhtml'],
         ['content/preferences.js', 'build/addon/content/preferences.js'],
-        ['content/Zoclau.css', 'build/addon/content/Zoclau.css'],
+        ['content/zoclau.css', 'build/addon/content/zoclau.css'],
         ['content/icons/zoclau-16.png', 'build/addon/content/icons/zoclau-16.png'],
         ['content/icons/zoclau-48.png', 'build/addon/content/icons/zoclau-48.png'],
         ['content/icons/zoclau-96.png', 'build/addon/content/icons/zoclau-96.png'],
@@ -59,17 +59,17 @@ const context = await esbuild.context({
     plugins: [copyPlugin],
     external: [],
     format: 'iife',
-    globalName: '_ZeClauModule',
+    globalName: '_ZoclauModule',
     target: 'firefox115',
     logLevel: 'info',
     sourcemap: prod ? false : 'inline',
     treeShaking: true,
-    outfile: 'build/addon/content/zeclau.js',
+    outfile: 'build/addon/content/zoclau.js',
     banner: {
         js: `// Zoclau - Claude Code for Zotero\n// Built: ${new Date().toISOString()}\n`,
     },
     footer: {
-        js: `\n// Register on Zotero global\nif (typeof Zotero !== 'undefined') { Zotero.ZeClau = _ZeClauModule; }\n`,
+        js: `\n// Register on Zotero global\nif (typeof Zotero !== 'undefined') { Zotero.Zoclau = _ZoclauModule; Zotero.ZeClau = _ZoclauModule; }\n`,
     },
     define: {
         'process.env.NODE_ENV': prod ? '"production"' : '"development"',
