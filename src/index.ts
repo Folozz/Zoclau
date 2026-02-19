@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Zoclau - Main plugin entry point for Zotero 7.
  *
  * Exports: init, shutdown, onMainWindowLoad, onMainWindowUnload
@@ -321,7 +321,7 @@ function applySectionChrome(doc: Document, setSectionSummary?: ((summary: string
 export async function init(params: { id: string; version: string; rootURI: string }): Promise<void> {
     pluginId = params.id;
     pluginVersion = params.version;
-    styleSheetURI = CONTENT_BASE_URI + 'zeclau.css';
+    styleSheetURI = CONTENT_BASE_URI + 'Zoclau.css';
 
     log(`Initializing ${DISPLAY_NAME} v${pluginVersion}`);
 

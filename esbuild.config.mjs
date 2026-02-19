@@ -25,7 +25,7 @@ function copyStaticFiles() {
         ['prefs.js', 'build/addon/prefs.js'],
         ['content/preferences.xhtml', 'build/addon/content/preferences.xhtml'],
         ['content/preferences.js', 'build/addon/content/preferences.js'],
-        ['content/zeclau.css', 'build/addon/content/zeclau.css'],
+        ['content/Zoclau.css', 'build/addon/content/Zoclau.css'],
         ['content/icons/zoclau-16.png', 'build/addon/content/icons/zoclau-16.png'],
         ['content/icons/zoclau-48.png', 'build/addon/content/icons/zoclau-48.png'],
         ['content/icons/zoclau-96.png', 'build/addon/content/icons/zoclau-96.png'],
