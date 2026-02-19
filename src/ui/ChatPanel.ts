@@ -29,6 +29,7 @@ interface LocalFileEntry {
     name: string;
     size: number;
     preview: string;
+    folderPath: string;
 }
 
 const DEFAULT_MODELS: { value: ClaudeModel; label: string }[] = [
@@ -40,6 +41,7 @@ const DEFAULT_MODELS: { value: ClaudeModel; label: string }[] = [
 
 const BASE_MESSAGES_HEIGHT_PX = 480;
 const MAX_INPUT_TEXTAREA_HEIGHT_PX = 220;
+const MAX_LOCAL_FILES_PER_FOLDER = 6;
 
 export class ChatPanel {
     private doc: Document;
@@ -66,12 +68,16 @@ export class ChatPanel {
     private currentItemClearBtn: HTMLButtonElement | null = null;
     private selectedContextWrap: HTMLElement | null = null;
     private localFilesWrap: HTMLElement | null = null;
+    private folderPickerBtn: HTMLButtonElement | null = null;
+    private folderCountBadge: HTMLElement | null = null;
+    private externalContextMenu: HTMLElement | null = null;
     private scrollRail: HTMLElement | null = null;
     private scrollTopBtn: HTMLButtonElement | null = null;
     private scrollBottomBtn: HTMLButtonElement | null = null;
     private mentionDropdown: HTMLElement | null = null;
     private docClickHandler: ((event: MouseEvent) => void) | null = null;
     private inputAreaResizeObserver: ResizeObserver | null = null;
+    private externalContextHideTimer: number | null = null;
 
     // State
     private currentStreamingEl: HTMLElement | null = null;
@@ -85,6 +91,7 @@ export class ChatPanel {
     private mentionCacheAt = 0;
     private mentionCache: ContextEntry[] = [];
     private selectedLocalFiles: LocalFileEntry[] = [];
+    private selectedLocalFolders: string[] = [];
     private selectedPaperContexts: ContextEntry[] = [];
     private historyMenuRowHeight = 44;
     private inputAreaBaseHeight = 0;
@@ -454,7 +461,16 @@ export class ChatPanel {
         addFolderBtn.className = 'zeclau-icon-btn zeclau-file-picker-btn zeclau-toolbar-btn zeclau-toolbar-btn-folder';
         addFolderBtn.title = '选择本地文件夹';
         addFolderBtn.appendChild(this.createToolbarIcon('folder'));
+        const folderCountBadge = this.doc.createElement('span');
+        folderCountBadge.className = 'zeclau-folder-count-badge';
+        folderCountBadge.style.display = 'none';
+        addFolderBtn.appendChild(folderCountBadge);
+        addFolderBtn.addEventListener('mouseenter', () => this.showExternalContextMenu());
+        addFolderBtn.addEventListener('focus', () => this.showExternalContextMenu());
+        addFolderBtn.addEventListener('mouseleave', () => this.scheduleHideExternalContextMenu());
         addFolderBtn.addEventListener('click', () => this.pickLocalFiles());
+        this.folderPickerBtn = addFolderBtn;
+        this.folderCountBadge = folderCountBadge;
 
         footerLeft.appendChild(newBtnFooter);
         footerLeft.appendChild(addFolderBtn);
@@ -487,16 +503,31 @@ export class ChatPanel {
 
         inputArea.appendChild(shell);
 
+        this.externalContextMenu = this.doc.createElement('div');
+        this.externalContextMenu.className = 'zeclau-external-context-menu';
+        this.externalContextMenu.style.display = 'none';
+        this.externalContextMenu.addEventListener('mouseenter', () => this.clearExternalContextHideTimer());
+        this.externalContextMenu.addEventListener('mouseleave', () => this.scheduleHideExternalContextMenu());
+        shell.appendChild(this.externalContextMenu);
+
         if (!this.docClickHandler) {
             this.docClickHandler = (event: MouseEvent) => {
                 const target = event.target as Node | null;
-                if (!target || !this.historyMenu) return;
+                if (!target) return;
 
-                const clickedToggle = this.historyToggleBtn?.contains(target) || false;
-                const clickedMenu = this.historyMenu.contains(target);
+                if (this.historyMenu) {
+                    const clickedToggle = this.historyToggleBtn?.contains(target) || false;
+                    const clickedMenu = this.historyMenu.contains(target);
 
-                if (!clickedToggle && !clickedMenu) {
-                    this.hideHistoryMenu();
+                    if (!clickedToggle && !clickedMenu) {
+                        this.hideHistoryMenu();
+                    }
+                }
+
+                const clickedFolderBtn = this.folderPickerBtn?.contains(target) || false;
+                const clickedExternalMenu = this.externalContextMenu?.contains(target) || false;
+                if (!clickedFolderBtn && !clickedExternalMenu) {
+                    this.hideExternalContextMenu();
                 }
             };
             this.doc.addEventListener('mousedown', this.docClickHandler);
@@ -505,6 +536,7 @@ export class ChatPanel {
         this.renderCurrentItemChip();
         this.renderSelectedPaperContexts();
         this.renderSelectedLocalFiles();
+        this.renderExternalContextMenu();
         return inputArea;
     }
 
@@ -1515,10 +1547,29 @@ export class ChatPanel {
                     this.updateStatus('未选择有效文件夹');
                     return;
                 }
+                const folderPath = String(folder.path || '').trim();
+                if (!folderPath) {
+                    this.updateStatus('未选择有效文件夹');
+                    return;
+                }
 
-                const files = this.collectReadableFilesFromFolder(folder, 24);
+                const folderKey = this.normalizePathForCompare(folderPath);
+                const hasFolder = this.selectedLocalFolders.some(
+                    (path) => this.normalizePathForCompare(path) === folderKey,
+                );
+                if (!hasFolder) {
+                    this.selectedLocalFolders.push(folderPath);
+                }
+
+                const files = this.collectReadableFilesFromFolder(folder, MAX_LOCAL_FILES_PER_FOLDER);
                 if (files.length === 0) {
-                    this.updateStatus('该文件夹中未找到可读取文本文件');
+                    this.renderSelectedLocalFiles();
+                    this.updateStatus(
+                        hasFolder
+                            ? `文件夹已存在：${folderPath}`
+                            : `已添加文件夹：${folderPath}（未读取到可用文本文件）`,
+                    );
+                    this.showExternalContextMenu();
                     return;
                 }
 
@@ -1529,7 +1580,7 @@ export class ChatPanel {
                         const name = String(file.leafName || this.extractFileName(path));
                         const size = Number(file.fileSize || 0);
                         const preview = this.readLocalFilePreview(path, 16 * 1024);
-                        incoming.push({ path, name, size, preview });
+                        incoming.push({ path, name, size, preview, folderPath });
                     } catch {
                         // ignore single file failures
                     }
@@ -1543,9 +1594,10 @@ export class ChatPanel {
                     merged.set(file.path, file);
                 }
 
-                this.selectedLocalFiles = Array.from(merged.values()).slice(0, 12);
+                this.selectedLocalFiles = Array.from(merged.values());
                 this.renderSelectedLocalFiles();
-                this.updateStatus(`已添加 ${incoming.length} 个文件`);
+                this.updateStatus(hasFolder ? `已刷新文件夹：${folderPath}` : `已添加文件夹：${folderPath}`);
+                this.showExternalContextMenu();
             };
 
             if (typeof picker.open === 'function') {
@@ -1610,36 +1662,187 @@ export class ChatPanel {
         if (!this.localFilesWrap) return;
 
         this.localFilesWrap.innerHTML = '';
-
-        for (const file of this.selectedLocalFiles) {
-            const chip = this.doc.createElement('span');
-            chip.className = 'zeclau-local-file-chip';
-            chip.title = file.path;
-
-            const label = this.doc.createElement('span');
-            label.className = 'zeclau-local-file-label';
-            label.textContent = this.truncateText(file.name, 26);
-
-            const removeBtn = this.doc.createElement('button');
-            removeBtn.type = 'button';
-            removeBtn.className = 'zeclau-local-file-remove';
-            removeBtn.textContent = '×';
-            removeBtn.title = '移除文件';
-            removeBtn.addEventListener('click', (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                this.removeLocalFile(file.path);
-            });
-
-            chip.appendChild(label);
-            chip.appendChild(removeBtn);
-            this.localFilesWrap.appendChild(chip);
-        }
+        this.renderExternalContextMenu();
     }
 
     private removeLocalFile(path: string): void {
         this.selectedLocalFiles = this.selectedLocalFiles.filter((file) => file.path !== path);
+        const aliveFolders = new Set<string>();
+        for (const file of this.selectedLocalFiles) {
+            const folderPath = (file.folderPath || this.extractDirectoryPath(file.path)).trim();
+            if (!folderPath) continue;
+            aliveFolders.add(this.normalizePathForCompare(folderPath));
+        }
+        this.selectedLocalFolders = this.selectedLocalFolders.filter((pathItem) => aliveFolders.has(this.normalizePathForCompare(pathItem)));
         this.renderSelectedLocalFiles();
+    }
+
+    private renderExternalContextMenu(): void {
+        if (!this.externalContextMenu) return;
+
+        this.externalContextMenu.innerHTML = '';
+
+        const folders = this.getSelectedLocalFolderPaths();
+        this.updateFolderPickerState(folders.length);
+
+        const header = this.doc.createElement('div');
+        header.className = 'zeclau-external-context-header';
+        header.textContent = '本地文件夹';
+        this.externalContextMenu.appendChild(header);
+        if (folders.length === 0) {
+            const empty = this.doc.createElement('div');
+            empty.className = 'zeclau-external-context-empty';
+            empty.textContent = '点击文件夹图标添加';
+            this.externalContextMenu.appendChild(empty);
+            return;
+        }
+
+        const list = this.doc.createElement('div');
+        list.className = 'zeclau-external-context-list';
+
+        for (const folderPath of folders) {
+            const row = this.doc.createElement('div');
+            row.className = 'zeclau-external-context-item';
+
+            const label = this.doc.createElement('div');
+            label.className = 'zeclau-external-context-path';
+            label.textContent = folderPath;
+            label.title = folderPath;
+
+            const removeBtn = this.doc.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'zeclau-external-context-remove';
+            removeBtn.title = '移除文件夹';
+            removeBtn.textContent = '×';
+            removeBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                this.removeLocalFolder(folderPath);
+            });
+
+            row.appendChild(label);
+            row.appendChild(removeBtn);
+            list.appendChild(row);
+        }
+
+        this.externalContextMenu.appendChild(list);
+    }
+
+    private updateFolderPickerState(folderCount?: number): void {
+        const count = Number.isFinite(folderCount as number)
+            ? Number(folderCount)
+            : this.getSelectedLocalFolderPaths().length;
+
+        if (this.folderPickerBtn) {
+            this.folderPickerBtn.classList.toggle('has-local-folders', count > 0);
+        }
+
+        if (this.folderCountBadge) {
+            if (count > 1) {
+                this.folderCountBadge.textContent = String(Math.min(99, count));
+                this.folderCountBadge.style.display = 'inline-flex';
+            } else {
+                this.folderCountBadge.textContent = '';
+                this.folderCountBadge.style.display = 'none';
+            }
+        }
+    }
+
+    private getSelectedLocalFolderPaths(): string[] {
+        if (this.selectedLocalFolders.length > 0) {
+            return [...this.selectedLocalFolders];
+        }
+
+        const ordered: string[] = [];
+        const seen = new Set<string>();
+
+        for (const file of this.selectedLocalFiles) {
+            const folderPath = (file.folderPath || this.extractDirectoryPath(file.path)).trim();
+            if (!folderPath) continue;
+            const key = this.normalizePathForCompare(folderPath);
+            if (seen.has(key)) continue;
+            seen.add(key);
+            ordered.push(folderPath);
+        }
+
+        return ordered;
+    }
+
+    private removeLocalFolder(folderPath: string): void {
+        const folderKey = this.normalizePathForCompare(folderPath);
+        this.selectedLocalFolders = this.selectedLocalFolders.filter(
+            (path) => this.normalizePathForCompare(path) !== folderKey,
+        );
+        this.selectedLocalFiles = this.selectedLocalFiles.filter((file) => {
+            const entryFolder = (file.folderPath || this.extractDirectoryPath(file.path)).trim();
+            return this.normalizePathForCompare(entryFolder) !== folderKey;
+        });
+        this.renderSelectedLocalFiles();
+        this.updateStatus(`已移除文件夹：${folderPath}`);
+        this.showExternalContextMenu();
+    }
+
+    private showExternalContextMenu(): void {
+        this.clearExternalContextHideTimer();
+        this.renderExternalContextMenu();
+        if (this.externalContextMenu) {
+            this.externalContextMenu.style.display = 'block';
+            this.positionExternalContextMenu();
+            this.doc.defaultView?.requestAnimationFrame(() => this.positionExternalContextMenu());
+        }
+    }
+
+    private hideExternalContextMenu(): void {
+        this.clearExternalContextHideTimer();
+        if (this.externalContextMenu) {
+            this.externalContextMenu.style.display = 'none';
+        }
+    }
+
+    private scheduleHideExternalContextMenu(): void {
+        this.clearExternalContextHideTimer();
+        const win = this.doc.defaultView;
+        if (!win) return;
+
+        this.externalContextHideTimer = win.setTimeout(() => {
+            this.externalContextHideTimer = null;
+            this.hideExternalContextMenu();
+        }, 140);
+    }
+
+    private clearExternalContextHideTimer(): void {
+        if (this.externalContextHideTimer === null) return;
+        const win = this.doc.defaultView;
+        if (win) {
+            win.clearTimeout(this.externalContextHideTimer);
+        }
+        this.externalContextHideTimer = null;
+    }
+
+    private positionExternalContextMenu(): void {
+        if (!this.externalContextMenu || !this.folderPickerBtn) return;
+
+        const anchorParent = this.externalContextMenu.parentElement;
+        if (!anchorParent) return;
+
+        const parentRect = anchorParent.getBoundingClientRect();
+        const btnRect = this.folderPickerBtn.getBoundingClientRect();
+        const menuWidth = this.externalContextMenu.offsetWidth || 260;
+        const margin = 6;
+
+        let left = btnRect.left - parentRect.left - 8;
+        const minLeft = margin;
+        const maxLeft = Math.max(minLeft, parentRect.width - menuWidth - margin);
+        left = Math.min(Math.max(left, minLeft), maxLeft);
+
+        const bottom = Math.max(
+            margin,
+            Math.round(parentRect.bottom - btnRect.top + 8),
+        );
+
+        this.externalContextMenu.style.setProperty('left', `${Math.round(left)}px`, 'important');
+        this.externalContextMenu.style.setProperty('right', 'auto', 'important');
+        this.externalContextMenu.style.setProperty('bottom', `${bottom}px`, 'important');
     }
 
     private readLocalFilePreview(path: string, maxBytes: number): string {
@@ -1706,6 +1909,18 @@ export class ChatPanel {
     private extractFileName(path: string): string {
         const parts = path.split(/[\\/]/g).filter((part) => part.length > 0);
         return parts.length > 0 ? parts[parts.length - 1] : path;
+    }
+
+    private extractDirectoryPath(path: string): string {
+        const normalized = String(path || '').trim();
+        if (!normalized) return '';
+        const slashIdx = Math.max(normalized.lastIndexOf('/'), normalized.lastIndexOf('\\'));
+        if (slashIdx <= 0) return '';
+        return normalized.slice(0, slashIdx);
+    }
+
+    private normalizePathForCompare(path: string): string {
+        return String(path || '').replace(/\//g, '\\').toLowerCase().trim();
     }
 
     private getZoteroPane(): any {
@@ -2549,6 +2764,7 @@ export class ChatPanel {
             this.inputAreaResizeObserver.disconnect();
             this.inputAreaResizeObserver = null;
         }
+        this.clearExternalContextHideTimer();
 
         this.container.innerHTML = '';
         this.messagesWrapper = null;
@@ -2565,7 +2781,11 @@ export class ChatPanel {
         this.historyToggleBtn = null;
         this.historyMenu = null;
         this.currentItemChip = null;
+        this.selectedContextWrap = null;
         this.localFilesWrap = null;
+        this.folderPickerBtn = null;
+        this.folderCountBadge = null;
+        this.externalContextMenu = null;
         this.scrollRail = null;
         this.scrollTopBtn = null;
         this.scrollBottomBtn = null;
@@ -2577,6 +2797,7 @@ export class ChatPanel {
         this.mentionCache = [];
         this.mentionCacheAt = 0;
         this.selectedLocalFiles = [];
+        this.selectedLocalFolders = [];
         this.inputAreaBaseHeight = 0;
     }
 }

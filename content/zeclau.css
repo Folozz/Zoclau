@@ -1841,3 +1841,125 @@
   max-height: 100% !important;
 }
 
+/* External Contexts hover card for local folder picker */
+.zeclau-local-files-wrap {
+  display: none !important;
+}
+
+.zeclau-external-context-menu {
+  position: absolute !important;
+  left: 0;
+  bottom: calc(100% + 10px);
+  width: min(208px, calc(100% - 18px)) !important;
+  border: 1px solid #c8cbd1 !important;
+  border-radius: 10px !important;
+  background: #f4f4f5 !important;
+  box-shadow: 0 8px 20px rgba(40, 44, 54, 0.16) !important;
+  z-index: 66 !important;
+  overflow: hidden !important;
+}
+
+.zeclau-external-context-header {
+  padding: 9px 12px !important;
+  border-bottom: 1px solid #d9dce2 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #50545b !important;
+}
+
+.zeclau-external-context-empty {
+  padding: 14px 10px 16px !important;
+  text-align: center !important;
+  font-size: 11px !important;
+  color: #7b8088 !important;
+  font-style: italic !important;
+}
+
+.zeclau-external-context-list {
+  --zeclau-folder-row-height: 34px;
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: calc(var(--zeclau-folder-row-height) * 5) !important;
+  overflow-y: auto !important;
+}
+
+.zeclau-external-context-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.zeclau-external-context-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #c0c5ce;
+}
+
+.zeclau-external-context-item {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-height: var(--zeclau-folder-row-height) !important;
+  padding: 7px 12px !important;
+  box-sizing: border-box !important;
+}
+
+.zeclau-external-context-path {
+  min-width: 0 !important;
+  font-size: 11px !important;
+  color: #2a2f36 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.zeclau-external-context-remove {
+  border: none !important;
+  background: transparent !important;
+  color: #9aa0a8 !important;
+  width: 16px !important;
+  height: 16px !important;
+  padding: 0 !important;
+  font-size: 17px !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.zeclau-external-context-remove:hover {
+  color: #646a73 !important;
+}
+
+.zeclau-file-picker-btn {
+  position: relative !important;
+}
+
+.zeclau-file-picker-btn.has-local-folders {
+  color: #2f66e0 !important;
+}
+
+.zeclau-file-picker-btn.has-local-folders:hover {
+  color: #2257cf !important;
+  background: rgba(47, 102, 224, 0.14) !important;
+}
+
+.zeclau-folder-count-badge {
+  position: absolute !important;
+  right: -6px !important;
+  top: -5px !important;
+  min-width: 12px !important;
+  height: 12px !important;
+  padding: 0 3px !important;
+  border-radius: 999px !important;
+  background: #2f66e0 !important;
+  color: #ffffff !important;
+  font-size: 9px !important;
+  line-height: 12px !important;
+  font-weight: 600 !important;
+  display: none;
+  align-items: center !important;
+  justify-content: center !important;
+  pointer-events: none !important;
+  box-sizing: border-box !important;
+}
+
