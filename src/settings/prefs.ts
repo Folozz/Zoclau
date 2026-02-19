@@ -55,18 +55,39 @@ function setPref(key: string, value: any): void {
     }
 }
 
+function toStringPref(value: unknown, fallback: string): string {
+    if (typeof value === 'string') return value;
+    if (value === undefined || value === null) return fallback;
+    return String(value);
+}
+
+function toBooleanPref(value: unknown, fallback: boolean): boolean {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        if (normalized === 'true') return true;
+        if (normalized === 'false') return false;
+    }
+    if (typeof value === 'number') {
+        return value !== 0;
+    }
+    return fallback;
+}
+
 export function loadSettings(): ZoclauSettings {
     return {
-        userName: getPref('userName') ?? DEFAULT_SETTINGS.userName,
-        model: getPref('model') ?? DEFAULT_SETTINGS.model,
-        thinkingBudget: getPref('thinkingBudget') ?? DEFAULT_SETTINGS.thinkingBudget,
-        systemPrompt: getPref('systemPrompt') ?? DEFAULT_SETTINGS.systemPrompt,
-        environmentVariables: getPref('environmentVariables') ?? DEFAULT_SETTINGS.environmentVariables,
-        claudeCliPath: getPref('claudeCliPath') ?? DEFAULT_SETTINGS.claudeCliPath,
-        workingDirectory: getPref('workingDirectory') ?? DEFAULT_SETTINGS.workingDirectory,
-        permissionMode: getPref('permissionMode') ?? DEFAULT_SETTINGS.permissionMode,
-        enableAutoScroll: getPref('enableAutoScroll') ?? DEFAULT_SETTINGS.enableAutoScroll,
-        enableBlocklist: getPref('enableBlocklist') ?? DEFAULT_SETTINGS.enableBlocklist,
+        userName: toStringPref(getPref('userName'), DEFAULT_SETTINGS.userName),
+        model: toStringPref(getPref('model'), DEFAULT_SETTINGS.model),
+        thinkingBudget: toStringPref(getPref('thinkingBudget'), DEFAULT_SETTINGS.thinkingBudget) as ZoclauSettings['thinkingBudget'],
+        systemPrompt: toStringPref(getPref('systemPrompt'), DEFAULT_SETTINGS.systemPrompt),
+        environmentVariables: toStringPref(getPref('environmentVariables'), DEFAULT_SETTINGS.environmentVariables),
+        claudeCliPath: toStringPref(getPref('claudeCliPath'), DEFAULT_SETTINGS.claudeCliPath),
+        workingDirectory: toStringPref(getPref('workingDirectory'), DEFAULT_SETTINGS.workingDirectory),
+        permissionMode: toStringPref(getPref('permissionMode'), DEFAULT_SETTINGS.permissionMode) as ZoclauSettings['permissionMode'],
+        enableAutoScroll: toBooleanPref(getPref('enableAutoScroll'), DEFAULT_SETTINGS.enableAutoScroll),
+        loadUserClaudeSettings: toBooleanPref(getPref('loadUserClaudeSettings'), DEFAULT_SETTINGS.loadUserClaudeSettings),
+        blockedCommandsWindows: toStringPref(getPref('blockedCommandsWindows'), DEFAULT_SETTINGS.blockedCommandsWindows),
+        blockedCommandsUnix: toStringPref(getPref('blockedCommandsUnix'), DEFAULT_SETTINGS.blockedCommandsUnix),
     };
 }
 

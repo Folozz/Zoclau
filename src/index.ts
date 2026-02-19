@@ -56,7 +56,9 @@ const SETTINGS_KEYS: (keyof ZoclauSettings)[] = [
     'workingDirectory',
     'permissionMode',
     'enableAutoScroll',
-    'enableBlocklist',
+    'loadUserClaudeSettings',
+    'blockedCommandsWindows',
+    'blockedCommandsUnix',
 ];
 
 const panelByBody = new WeakMap<HTMLElement, ChatPanel>();

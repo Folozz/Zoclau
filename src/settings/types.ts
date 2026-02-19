@@ -16,7 +16,9 @@ export interface ZoclauSettings {
     workingDirectory: string;
     permissionMode: PermissionMode;
     enableAutoScroll: boolean;
-    enableBlocklist: boolean;
+    loadUserClaudeSettings: boolean;
+    blockedCommandsWindows: string;
+    blockedCommandsUnix: string;
 }
 
 export const DEFAULT_SETTINGS: ZoclauSettings = {
@@ -29,7 +31,20 @@ export const DEFAULT_SETTINGS: ZoclauSettings = {
     workingDirectory: '',
     permissionMode: 'yolo',
     enableAutoScroll: true,
-    enableBlocklist: true,
+    loadUserClaudeSettings: true,
+    blockedCommandsWindows: [
+        'del /s /q',
+        'rd /s /q',
+        'rmdir /s /q',
+        'format',
+        'diskpart',
+        'Remove-Item -Recurse -Force',
+    ].join('\n'),
+    blockedCommandsUnix: [
+        'rm -rf',
+        'chmod 777',
+        'chmod -R 777',
+    ].join('\n'),
 };
 
 /** Conversation metadata */

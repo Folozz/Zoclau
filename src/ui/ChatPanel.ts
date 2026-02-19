@@ -78,6 +78,7 @@ export class ChatPanel {
     private docClickHandler: ((event: MouseEvent) => void) | null = null;
     private inputAreaResizeObserver: ResizeObserver | null = null;
     private externalContextHideTimer: number | null = null;
+    private suppressExternalContextMenuAutoShow = false;
 
     // State
     private currentStreamingEl: HTMLElement | null = null;
@@ -112,7 +113,7 @@ export class ChatPanel {
         this.service = service;
         this.conversationManager = conversationManager;
         this.settings = settings;
-        this.enableAutoScroll = settings.enableAutoScroll;
+        this.enableAutoScroll = this.normalizeBooleanSetting(settings?.enableAutoScroll, true);
         this.hydrateModelFromEnvironment();
     }
 
@@ -181,9 +182,22 @@ export class ChatPanel {
 
     updateSettings(nextSettings: any): void {
         this.settings = { ...nextSettings };
-        this.enableAutoScroll = !!this.settings.enableAutoScroll;
+        this.enableAutoScroll = this.normalizeBooleanSetting(this.settings?.enableAutoScroll, true);
         this.renderModelSelectorOptions();
         this.updateScrollButtonsState();
+    }
+
+    private normalizeBooleanSetting(value: unknown, fallback: boolean): boolean {
+        if (typeof value === 'boolean') return value;
+        if (typeof value === 'string') {
+            const normalized = value.trim().toLowerCase();
+            if (normalized === 'true') return true;
+            if (normalized === 'false') return false;
+        }
+        if (typeof value === 'number') {
+            return value !== 0;
+        }
+        return fallback;
     }
 
     private getEnvVars(): Record<string, string> {
@@ -465,10 +479,27 @@ export class ChatPanel {
         folderCountBadge.className = 'zoclau-folder-count-badge';
         folderCountBadge.style.display = 'none';
         addFolderBtn.appendChild(folderCountBadge);
-        addFolderBtn.addEventListener('mouseenter', () => this.showExternalContextMenu());
-        addFolderBtn.addEventListener('focus', () => this.showExternalContextMenu());
+        addFolderBtn.addEventListener('mouseenter', () => {
+            this.suppressExternalContextMenuAutoShow = false;
+            this.showExternalContextMenu();
+        });
+        addFolderBtn.addEventListener('focus', () => {
+            if (this.suppressExternalContextMenuAutoShow) {
+                return;
+            }
+            if (!addFolderBtn.matches(':hover')) {
+                return;
+            }
+            this.suppressExternalContextMenuAutoShow = false;
+            this.showExternalContextMenu();
+        });
         addFolderBtn.addEventListener('mouseleave', () => this.scheduleHideExternalContextMenu());
-        addFolderBtn.addEventListener('click', () => this.pickLocalFiles());
+        addFolderBtn.addEventListener('blur', () => this.scheduleHideExternalContextMenu());
+        addFolderBtn.addEventListener('click', () => {
+            this.suppressExternalContextMenuAutoShow = true;
+            this.hideExternalContextMenu();
+            this.pickLocalFiles();
+        });
         this.folderPickerBtn = addFolderBtn;
         this.folderCountBadge = folderCountBadge;
 
@@ -1129,6 +1160,11 @@ export class ChatPanel {
         const convId = this.ensureActiveConversation();
         const activeBeforeSend = this.conversationManager.getActive();
         const hadMessagesBeforeSend = this.conversationManager.getMessages(convId).length > 0;
+        const shouldGenerateAiTitle = !!(
+            activeBeforeSend &&
+            this.shouldAutoRenameConversation(activeBeforeSend.title) &&
+            !hadMessagesBeforeSend
+        );
 
         const userMessage: ChatMessage = {
             id: `msg_${Date.now()}_user`,
@@ -1140,16 +1176,64 @@ export class ChatPanel {
         this.conversationManager.addMessage(convId, userMessage);
         this.appendMessageEl(userMessage);
 
-        if (activeBeforeSend && this.shouldAutoRenameConversation(activeBeforeSend.title) && !hadMessagesBeforeSend) {
-            const nextTitle = this.deriveConversationTopic(text);
-            if (nextTitle) {
-                this.conversationManager.updateTitle(convId, nextTitle);
-                this.renderConversationOptions();
-            }
-        }
-
         const { prompt: enriched, skillPrompt } = this.buildPromptWithContexts(text);
         await this.service.sendMessage(enriched, convId, skillPrompt || undefined);
+
+        if (shouldGenerateAiTitle) {
+            void this.generateConversationTitleByModel(convId, text);
+        }
+    }
+
+    private async generateConversationTitleByModel(conversationId: string, firstUserText: string): Promise<void> {
+        const conv = this.conversationManager.getAll().find((item) => item.id === conversationId);
+        if (!conv || !this.shouldAutoRenameConversation(conv.title)) {
+            return;
+        }
+
+        const messages = this.conversationManager.getMessages(conversationId);
+        const firstAssistant = messages.find((msg) => msg.role === 'assistant' && msg.content.trim());
+        const fallbackTitle = this.deriveConversationTopic(firstUserText);
+
+        if (!firstAssistant) {
+            if (fallbackTitle) {
+                this.conversationManager.updateTitle(conversationId, fallbackTitle);
+                this.renderConversationOptions();
+            }
+            return;
+        }
+
+        const generated = await this.service.generateConversationTitle(firstUserText, firstAssistant.content);
+        const aiTitle = this.normalizeAiConversationTitle(generated || '');
+        const nextTitle = aiTitle || fallbackTitle;
+        if (!nextTitle) return;
+
+        const latestConv = this.conversationManager.getAll().find((item) => item.id === conversationId);
+        if (!latestConv || !this.shouldAutoRenameConversation(latestConv.title)) {
+            return;
+        }
+
+        this.conversationManager.updateTitle(conversationId, nextTitle);
+        this.renderConversationOptions();
+    }
+
+    private normalizeAiConversationTitle(raw: string): string {
+        const firstLine = String(raw || '')
+            .replace(/\r\n?/g, '\n')
+            .split('\n')
+            .map((line) => line.trim())
+            .find((line) => !!line) || '';
+        if (!firstLine) return '';
+
+        const cleaned = firstLine
+            .replace(/^["'`“”‘’]+|["'`“”‘’]+$/g, '')
+            .replace(/^(title|标题)\s*[:：-]\s*/i, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+        if (!cleaned || this.shouldAutoRenameConversation(cleaned)) {
+            return '';
+        }
+
+        return this.truncateText(cleaned, 48);
     }
 
     private deriveConversationTopic(text: string): string {
@@ -1539,17 +1623,21 @@ export class ChatPanel {
 
             const consumeResult = (rv: number): void => {
                 if (rv !== Ci.nsIFilePicker.returnOK && rv !== Ci.nsIFilePicker.returnReplace) {
+                    this.scheduleHideExternalContextMenu();
                     return;
                 }
 
                 const folder = picker.file;
                 if (!folder || (typeof folder.isDirectory === 'function' && !folder.isDirectory())) {
                     this.updateStatus('未选择有效文件夹');
+                    this.scheduleHideExternalContextMenu();
                     return;
                 }
+
                 const folderPath = String(folder.path || '').trim();
                 if (!folderPath) {
                     this.updateStatus('未选择有效文件夹');
+                    this.scheduleHideExternalContextMenu();
                     return;
                 }
 
@@ -1569,7 +1657,7 @@ export class ChatPanel {
                             ? `文件夹已存在：${folderPath}`
                             : `已添加文件夹：${folderPath}（未读取到可用文本文件）`,
                     );
-                    this.showExternalContextMenu();
+                    this.syncExternalContextMenuAfterDataChange();
                     return;
                 }
 
@@ -1597,7 +1685,7 @@ export class ChatPanel {
                 this.selectedLocalFiles = Array.from(merged.values());
                 this.renderSelectedLocalFiles();
                 this.updateStatus(hasFolder ? `已刷新文件夹：${folderPath}` : `已添加文件夹：${folderPath}`);
-                this.showExternalContextMenu();
+                this.syncExternalContextMenuAfterDataChange();
             };
 
             if (typeof picker.open === 'function') {
@@ -1779,10 +1867,31 @@ export class ChatPanel {
         });
         this.renderSelectedLocalFiles();
         this.updateStatus(`已移除文件夹：${folderPath}`);
-        this.showExternalContextMenu();
+        this.syncExternalContextMenuAfterDataChange();
     }
 
+    private isExternalContextMenuHovered(): boolean {
+        const btnHovered = !!this.folderPickerBtn && this.folderPickerBtn.matches(':hover');
+        const menuHovered = !!this.externalContextMenu && this.externalContextMenu.matches(':hover');
+        return btnHovered || menuHovered;
+    }
+
+    private syncExternalContextMenuAfterDataChange(): void {
+        this.renderExternalContextMenu();
+        if (this.suppressExternalContextMenuAutoShow) {
+            this.scheduleHideExternalContextMenu();
+            return;
+        }
+        if (this.isExternalContextMenuHovered()) {
+            this.showExternalContextMenu();
+            return;
+        }
+        this.scheduleHideExternalContextMenu();
+    }
     private showExternalContextMenu(): void {
+        if (this.suppressExternalContextMenuAutoShow && !this.isExternalContextMenuHovered()) {
+            return;
+        }
         this.clearExternalContextHideTimer();
         this.renderExternalContextMenu();
         if (this.externalContextMenu) {
@@ -1806,6 +1915,9 @@ export class ChatPanel {
 
         this.externalContextHideTimer = win.setTimeout(() => {
             this.externalContextHideTimer = null;
+            if (this.isExternalContextMenuHovered()) {
+                return;
+            }
             this.hideExternalContextMenu();
         }, 140);
     }

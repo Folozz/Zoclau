@@ -13,8 +13,9 @@
       --zc-text: #1f2937;
       --zc-muted: #5b6472;
       --zc-accent: #0f766e;
-      --zc-accent-soft: #e6f6f3;
-      --zc-warm: #f97316;
+      --zc-danger: #9f1239;
+      --zc-warning: #92400e;
+      --zc-success: #0f766e;
       background: var(--zc-bg);
       color: var(--zc-text);
       padding: 14px;
@@ -24,7 +25,7 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      max-width: 960px;
+      max-width: 980px;
     }
 
     #zotero-prefpane-zoclau .zc-hero {
@@ -91,8 +92,14 @@
       align-items: flex-start;
     }
 
+    #zotero-prefpane-zoclau .zc-row-inline {
+      margin: 8px 0 6px;
+      gap: 14px;
+      align-items: center;
+    }
+
     #zotero-prefpane-zoclau .zc-label {
-      width: 170px;
+      width: 178px;
       margin-right: 8px;
       font-size: 12px;
       font-weight: 600;
@@ -106,40 +113,27 @@
     }
 
     #zotero-prefpane-zoclau textbox[multiline="true"] {
-      min-height: 76px;
+      min-height: 90px;
     }
 
-    #zotero-prefpane-zoclau .zc-chip {
-      margin-top: 8px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: var(--zc-accent-soft);
-      color: #115e59;
-      font-size: 11px;
-      font-weight: 600;
-      display: inline-block;
-    }
-
-    #zotero-prefpane-zoclau .zc-row-inline {
-      margin-top: 6px;
-      gap: 14px;
-    }
-
-    #zotero-prefpane-zoclau .zc-divider {
-      border-top: 1px dashed var(--zc-border);
-      margin: 8px 0;
-    }
-
-    #zotero-prefpane-zoclau .zc-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    #zotero-prefpane-zoclau .zc-status {
+    #zotero-prefpane-zoclau .zc-inline-status {
+      display: block;
+      margin: 4px 0 0 186px;
       font-size: 11px;
       color: var(--zc-muted);
+      line-height: 1.35;
+    }
+
+    #zotero-prefpane-zoclau .zc-inline-status.is-ok {
+      color: var(--zc-success);
+    }
+
+    #zotero-prefpane-zoclau .zc-inline-status.is-warn {
+      color: var(--zc-warning);
+    }
+
+    #zotero-prefpane-zoclau .zc-inline-status.is-error {
+      color: var(--zc-danger);
     }
 
     #zotero-prefpane-zoclau .zc-footer {
@@ -147,11 +141,6 @@
       color: var(--zc-muted);
       text-align: right;
       padding-right: 4px;
-    }
-
-    #zotero-prefpane-zoclau .zc-footer strong {
-      color: var(--zc-warm);
-      font-weight: 700;
     }
   </html:style>
 
@@ -165,48 +154,19 @@
     </html:div>
 
     <groupbox class="zc-card">
-      <label class="zc-card-title" value="模型与推理" />
-      <label class="zc-card-note" value="为每次回复选择模型配置和思考预算。" />
-
-      <hbox class="zc-row" align="center">
-        <label class="zc-label" value="模型" />
-        <menulist id="zoclau-pref-model" flex="1">
-          <menupopup>
-            <menuitem label="自动（使用 Claude 设置）" value="auto" />
-            <menuitem label="Haiku（快速）" value="haiku" />
-            <menuitem label="Sonnet（均衡）" value="sonnet" />
-            <menuitem label="Opus（强大）" value="opus" />
-          </menupopup>
-        </menulist>
-      </hbox>
-
-      <hbox class="zc-row" align="center">
-        <label class="zc-label" value="思考预算" />
-        <menulist id="zoclau-pref-thinking" flex="1">
-          <menupopup>
-            <menuitem label="关闭" value="off" />
-            <menuitem label="低（1K tokens）" value="low" />
-            <menuitem label="中（4K tokens）" value="medium" />
-            <menuitem label="高（10K tokens）" value="high" />
-            <menuitem label="最高（32K tokens）" value="max" />
-          </menupopup>
-        </menulist>
-      </hbox>
-    </groupbox>
-
-    <groupbox class="zc-card">
-      <label class="zc-card-title" value="Claude CLI" />
-      <label class="zc-card-note" value="配置 CLI 路径与运行模式。" />
+      <label class="zc-card-title" value="Claude CLI 与运行目录" />
 
       <hbox class="zc-row" align="center">
         <label class="zc-label" value="CLI 路径" />
         <textbox id="zoclau-pref-clipath" flex="1" placeholder="自动检测（留空）" />
       </hbox>
+      <label id="zoclau-pref-cli-status" class="zc-inline-status" value="" />
 
       <hbox class="zc-row" align="center">
         <label class="zc-label" value="工作目录" />
         <textbox id="zoclau-pref-workdir" flex="1" placeholder="默认：Zotero 配置目录" />
       </hbox>
+      <label id="zoclau-pref-workdir-status" class="zc-inline-status" value="" />
 
       <hbox class="zc-row" align="center">
         <label class="zc-label" value="权限模式" />
@@ -218,45 +178,29 @@
           </menupopup>
         </menulist>
       </hbox>
-      <html:span class="zc-chip">提示：共享设备建议使用“安全”模式。</html:span>
     </groupbox>
 
     <groupbox class="zc-card">
-      <label class="zc-card-title" value="个性化" />
+      <label class="zc-card-title" value="行为与安全" />
+      <label class="zc-card-note" value="所有设置自动保存。" />
 
-      <hbox class="zc-row" align="center">
-        <label class="zc-label" value="用户名" />
-        <textbox id="zoclau-pref-username" flex="1" placeholder="你的名字（用于个性化回复）" />
-      </hbox>
-
-      <hbox class="zc-row-top" align="start">
-        <label class="zc-label" value="系统提示词" />
-        <textbox id="zoclau-pref-systemprompt" multiline="true" rows="4" flex="1" placeholder="给 Claude 的额外指令..." />
-      </hbox>
-
-      <html:div class="zc-divider"></html:div>
-
-      <hbox class="zc-row-top" align="start">
-        <label class="zc-label" value="环境变量" />
-        <textbox id="zoclau-pref-envvars" multiline="true" rows="4" flex="1" placeholder="ANTHROPIC_API_KEY=...&#10;ANTHROPIC_BASE_URL=..." />
-      </hbox>
-    </groupbox>
-
-    <groupbox class="zc-card">
-      <label class="zc-card-title" value="界面" />
       <hbox class="zc-row-inline" align="center">
         <checkbox id="zoclau-pref-autoscroll" label="流式输出时自动滚动" native="true" />
-        <checkbox id="zoclau-pref-blocklist" label="启用命令安全拦截列表" native="true" />
+        <checkbox id="zoclau-pref-load-user-settings" label="加载用户 Claude 设置（~/.claude/settings.json）" native="true" />
       </hbox>
 
-      <hbox class="zc-actions" align="center">
-        <button id="zoclau-pref-save" label="保存设置" />
-        <button id="zoclau-pref-reload" label="重新加载" />
-        <label id="zoclau-pref-status" class="zc-status" value="" />
+      <hbox class="zc-row-top" align="start">
+        <label class="zc-label" value="阻止的命令（Windows）" />
+        <textbox id="zoclau-pref-blocked-cmd-win" multiline="true" rows="6" flex="1" />
       </hbox>
+
+      <hbox class="zc-row-top" align="start">
+        <label class="zc-label" value="阻止的命令（Unix/Git Bash）" />
+        <textbox id="zoclau-pref-blocked-cmd-unix" multiline="true" rows="4" flex="1" />
+      </hbox>
+      <label id="zoclau-pref-blocklist-status" class="zc-inline-status" value="" />
     </groupbox>
 
-    <label class="zc-footer" value="由 Zoclau 配置 - Zotero 工作区 AI" />
+    <label class="zc-footer" value="由 Zoclau 配置 · Zotero 工作区 AI" />
   </html:div>
 </vbox>
-

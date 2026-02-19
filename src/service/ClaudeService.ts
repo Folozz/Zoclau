@@ -110,6 +110,21 @@ export class ClaudeService {
             'You help the user with their research, writing, and reference management tasks. ' +
             'You have full agentic capabilities: file read/write, search, and bash commands.'
         );
+        parts.push(
+            'Safety policy: Do not run destructive or irreversible commands unless the user explicitly confirms it in the same turn. ' +
+            'By default, block operations such as risky recursive deletion outside workspace, disk formatting, credential exfiltration, ' +
+            'registry tampering, and unauthorized privilege escalation.'
+        );
+
+        const blockedWindows = this.parseLineList(this.settings.blockedCommandsWindows);
+        const blockedUnix = this.parseLineList(this.settings.blockedCommandsUnix);
+
+        if (blockedWindows.length > 0) {
+            parts.push(`Blocked command patterns (Windows)\n- ${blockedWindows.join('\n- ')}`);
+        }
+        if (blockedUnix.length > 0) {
+            parts.push(`Blocked command patterns (Unix/Git Bash)\n- ${blockedUnix.join('\n- ')}`);
+        }
         if (this.settings.userName) {
             parts.push(`The user's name is ${this.settings.userName}.`);
         }
@@ -164,7 +179,7 @@ export class ClaudeService {
                 args.push('--resume', resumeSessionId);
             }
             this.applyRuntimeEnvironment(gitBashPath);
-            args.push('--setting-sources', 'user,project');
+            args.push('--setting-sources', this.getSettingSourcesArg());
 
             const systemPrompt = this.buildSystemPrompt(skillPrompt);
             if (systemPrompt) {
@@ -180,65 +195,13 @@ export class ClaudeService {
             }
             log(`CLI args: ${args.join(' ')}`);
 
-            // Use Zotero.Utilities.Internal.subprocess or Subprocess module
-            let Subprocess: any;
-            try {
-                // Zotero 7 provides Subprocess via ChromeUtils
-                Subprocess = ChromeUtils.importESModule
-                    ? ChromeUtils.importESModule('resource://gre/modules/Subprocess.sys.mjs')
-                    : ChromeUtils.import('resource://gre/modules/Subprocess.jsm');
-                if (Subprocess.Subprocess) Subprocess = Subprocess.Subprocess;
-            } catch (e) {
-                log(`Subprocess module not available: ${e}`);
-                throw new Error('Subprocess API not available. Please ensure Claude CLI path is set correctly.');
-            }
-
-            // Resolve CLI path to nsIFile
-            const cliFile = Components.classes['@mozilla.org/file/local;1']
-                .createInstance(Components.interfaces.nsIFile);
-
-            // Handle relative paths - search in PATH
-            if (cliPath.includes('/') || cliPath.includes('\\')) {
-                cliFile.initWithPath(cliPath);
-            } else {
-                // Need to find in PATH
-                const env = Components.classes['@mozilla.org/process/environment;1']
-                    .getService(Components.interfaces.nsIEnvironment);
-                const pathVar = env.get('PATH') || '';
-                const sep = pathVar.includes(';') ? ';' : ':';
-                const ext = pathVar.includes(';') ? ['.exe', '.cmd', '.bat', ''] : [''];
-                let found = false;
-
-                for (const dir of pathVar.split(sep)) {
-                    if (!dir) continue;
-                    for (const suffix of ext) {
-                        try {
-                            const testPath = dir + (dir.endsWith('/') || dir.endsWith('\\') ? '' : '/') + cliPath + suffix;
-                            const testFile = Components.classes['@mozilla.org/file/local;1']
-                                .createInstance(Components.interfaces.nsIFile);
-                            testFile.initWithPath(testPath.replace(/\//g, '\\'));
-                            if (testFile.exists()) {
-                                cliFile.initWithPath(testFile.path);
-                                found = true;
-                                break;
-                            }
-                        } catch {
-                            // invalid path
-                        }
-                    }
-                    if (found) break;
-                }
-
-                if (!found) {
-                    throw new Error(`Could not find Claude CLI '${cliPath}' in PATH. Please set the full path in settings.`);
-                }
-            }
-
-            log(`Resolved CLI path: ${cliFile.path}`);
+            const Subprocess = this.loadSubprocessModule();
+            const resolvedCliPath = this.resolveCliExecutablePath(cliPath);
+            log(`Resolved CLI path: ${resolvedCliPath}`);
 
             // Spawn subprocess
             const proc = await Subprocess.call({
-                command: cliFile.path,
+                command: resolvedCliPath,
                 arguments: args,
                 workdir: this.getWorkingDirectory() || undefined,
                 stdin: 'pipe',
@@ -275,18 +238,22 @@ export class ClaudeService {
                 const normalized = this.normalizeOutputLine(line);
                 if (!normalized) return;
 
+                let event: any;
                 try {
-                    const event = JSON.parse(normalized);
-                    sawStructuredEvent = true;
-                    this.handleStreamEvent(event, messageId, appendStreamingText, streamState);
+                    event = JSON.parse(normalized);
                 } catch {
                     appendStreamingText(normalized + '\n');
                     lastActivityAt = Date.now();
+                    return;
                 }
+
+                sawStructuredEvent = true;
+                this.handleStreamEvent(event, messageId, appendStreamingText, streamState);
             };
 
             // Read stdout in chunks (best-effort, do not block process completion)
             let buffer = '';
+            let streamReadError: Error | null = null;
             const readLoop = async () => {
                 try {
                     while (true) {
@@ -304,7 +271,13 @@ export class ClaudeService {
                     }
                 } catch (e) {
                     if (!this.abortRequested) {
-                        log(`Read error: ${e}`);
+                        streamReadError = e instanceof Error ? e : new Error(String(e));
+                        log(`Read error: ${streamReadError.message}`);
+                        try {
+                            proc.kill();
+                        } catch {
+                            // ignore kill failures
+                        }
                     }
                 }
             };
@@ -370,6 +343,10 @@ export class ClaudeService {
                 processOutputLine(buffer);
             }
 
+            if (streamReadError) {
+                throw streamReadError;
+            }
+
             const stderrText = stderrOutput.trim();
 
             if (this.abortRequested) {
@@ -423,6 +400,173 @@ export class ClaudeService {
         }
     }
 
+    async generateConversationTitle(userMessage: string, assistantMessage: string): Promise<string | null> {
+        const userText = String(userMessage || '').trim();
+        const assistantText = String(assistantMessage || '').trim();
+        if (!userText || !assistantText) return null;
+
+        const titlePrompt = [
+            'Based on this first-turn dialogue, generate a concise conversation title.',
+            'Requirements:',
+            '- 8 to 18 Chinese characters, or at most 8 English words.',
+            '- Return plain title text only.',
+            '- No quotes, no markdown, no punctuation suffix.',
+            '',
+            '[User]',
+            userText,
+            '',
+            '[Assistant]',
+            assistantText.slice(0, 2000),
+        ].join('\n');
+
+        try {
+            const Subprocess = this.loadSubprocessModule();
+            const cliPath = this.resolveCliExecutablePath(this.getCliPath());
+            const model = this.getModelId();
+            const gitBashPath = this.ensureGitBashEnvironment();
+            this.applyRuntimeEnvironment(gitBashPath);
+
+            const args: string[] = [
+                '--print',
+                '--verbose',
+                '--output-format', 'stream-json',
+                '--input-format', 'text',
+                '--include-partial-messages',
+                '--setting-sources', this.getSettingSourcesArg(),
+                '--permission-mode', 'plan',
+            ];
+            if (model && model !== 'auto') {
+                args.push('--model', model);
+            }
+            args.push(
+                '--system-prompt',
+                'You generate short chat history titles for Zotero. Return only the title text.',
+            );
+
+            const proc = await Subprocess.call({
+                command: cliPath,
+                arguments: args,
+                workdir: this.getWorkingDirectory() || undefined,
+                stdin: 'pipe',
+                stderr: 'pipe',
+            });
+
+            if (!proc.stdin) return null;
+
+            await proc.stdin.write(titlePrompt);
+            await proc.stdin.close();
+
+            let fullResponse = '';
+            let buffer = '';
+            const state = { sawTextDelta: false };
+
+            const appendText = (text: string): void => {
+                if (!text) return;
+                fullResponse += text;
+            };
+
+            while (true) {
+                const data = await proc.stdout.readString();
+                if (!data) break;
+
+                buffer += data;
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    const normalized = this.normalizeOutputLine(line);
+                    if (!normalized) continue;
+
+                    try {
+                        const event = JSON.parse(normalized);
+                        this.extractTextFromOneShotEvent(event, state, appendText);
+                    } catch {
+                        appendText(normalized + '\n');
+                    }
+                }
+            }
+
+            if (buffer.trim()) {
+                try {
+                    this.extractTextFromOneShotEvent(JSON.parse(buffer.trim()), state, appendText);
+                } catch {
+                    appendText(buffer.trim());
+                }
+            }
+
+            const result = await proc.wait();
+            if (Number(result?.exitCode ?? -1) !== 0) {
+                return null;
+            }
+
+            const normalizedTitle = this.normalizeConversationTitle(fullResponse);
+            return normalizedTitle || null;
+        } catch (e) {
+            log(`Failed to generate conversation title: ${e}`);
+            return null;
+        }
+    }
+
+    private extractTextFromOneShotEvent(
+        event: any,
+        state: { sawTextDelta: boolean },
+        appendText: (text: string) => void,
+    ): void {
+        if (!event) return;
+
+        if (event.type === 'stream_event' && event.event) {
+            this.extractTextFromOneShotEvent(event.event, state, appendText);
+            return;
+        }
+
+        if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta' && event.delta.text) {
+            state.sawTextDelta = true;
+            appendText(String(event.delta.text));
+            return;
+        }
+
+        if (event.type === 'assistant') {
+            if (!state.sawTextDelta) {
+                const text = this.extractTextValue(event.message?.content ?? event.message);
+                if (text) {
+                    appendText(text);
+                }
+            }
+            return;
+        }
+
+        if (event.type === 'result' && !state.sawTextDelta) {
+            const text = this.extractTextValue(event.result ?? event);
+            if (text) {
+                appendText(text);
+            }
+            return;
+        }
+
+        const fallback = this.extractTextValue(event);
+        if (fallback) {
+            appendText(fallback);
+        }
+    }
+
+    private normalizeConversationTitle(raw: string): string {
+        const oneLine = String(raw || '')
+            .replace(/\r\n?/g, '\n')
+            .split('\n')
+            .map((line) => line.trim())
+            .find((line) => !!line) || '';
+        if (!oneLine) return '';
+
+        const cleaned = oneLine
+            .replace(/^["'`“”‘’]+|["'`“”‘’]+$/g, '')
+            .replace(/^(title|标题)\s*[:：-]\s*/i, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        if (!cleaned) return '';
+        return cleaned.slice(0, 48);
+    }
+
     private handleStreamEvent(
         event: any,
         messageId: string,
@@ -471,12 +615,7 @@ export class ClaudeService {
                 const block = event.content_block;
                 // stream-json usually sends text in content_block_delta; avoid duplicate text.
                 if (block?.type === 'tool_use') {
-                    this.onToolUseCallback?.({
-                        type: 'tool_use',
-                        id: String(block.id || ''),
-                        name: String(block.name || ''),
-                        input: this.stringifyUnknown(block.input),
-                    });
+                    this.handleToolUseBlock(block);
                 }
                 break;
             }
@@ -504,12 +643,7 @@ export class ClaudeService {
                 break;
 
             case 'tool_use':
-                this.onToolUseCallback?.({
-                    type: 'tool_use',
-                    id: String(event.id || ''),
-                    name: String(event.name || ''),
-                    input: this.stringifyUnknown(event.input),
-                });
+                this.handleToolUseBlock(event);
                 break;
 
             case 'tool_result':
@@ -561,12 +695,7 @@ export class ClaudeService {
                 }
 
                 if (block.type === 'tool_use') {
-                    this.onToolUseCallback?.({
-                        type: 'tool_use',
-                        id: String(block.id || ''),
-                        name: String(block.name || ''),
-                        input: this.stringifyUnknown(block.input),
-                    });
+                    this.handleToolUseBlock(block);
                     continue;
                 }
 
@@ -709,6 +838,169 @@ export class ClaudeService {
 
         args.push('--permission-mode', 'bypassPermissions');
         args.push('--dangerously-skip-permissions');
+    }
+
+    private getSettingSourcesArg(): string {
+        return this.settings.loadUserClaudeSettings === false ? 'project' : 'user,project';
+    }
+
+    private loadSubprocessModule(): any {
+        try {
+            const imported = ChromeUtils.importESModule
+                ? ChromeUtils.importESModule('resource://gre/modules/Subprocess.sys.mjs')
+                : ChromeUtils.import('resource://gre/modules/Subprocess.jsm');
+            return imported.Subprocess || imported;
+        } catch (e) {
+            log(`Subprocess module not available: ${e}`);
+            throw new Error('Subprocess API not available. Please ensure Claude CLI path is set correctly.');
+        }
+    }
+
+    private resolveCliExecutablePath(cliPath: string): string {
+        const normalizedCli = String(cliPath || '').trim();
+        if (!normalizedCli) {
+            throw new Error('Claude CLI path is empty. Please configure Claude CLI in settings.');
+        }
+
+        // Absolute or explicit relative path.
+        if (normalizedCli.includes('/') || normalizedCli.includes('\\')) {
+            const file = Components.classes['@mozilla.org/file/local;1']
+                .createInstance(Components.interfaces.nsIFile);
+            file.initWithPath(normalizedCli);
+            if (!file.exists()) {
+                throw new Error(`Claude CLI path does not exist: ${normalizedCli}`);
+            }
+            return file.path;
+        }
+
+        // Search executable in PATH.
+        const env = Components.classes['@mozilla.org/process/environment;1']
+            .getService(Components.interfaces.nsIEnvironment);
+        const pathVar = env.get('PATH') || '';
+        const sep = pathVar.includes(';') ? ';' : ':';
+        const ext = pathVar.includes(';') ? ['.exe', '.cmd', '.bat', ''] : [''];
+
+        for (const dir of pathVar.split(sep)) {
+            if (!dir) continue;
+            for (const suffix of ext) {
+                try {
+                    const testPath = dir + (dir.endsWith('/') || dir.endsWith('\\') ? '' : '/') + normalizedCli + suffix;
+                    const testFile = Components.classes['@mozilla.org/file/local;1']
+                        .createInstance(Components.interfaces.nsIFile);
+                    testFile.initWithPath(testPath.replace(/\//g, '\\'));
+                    if (testFile.exists()) {
+                        return testFile.path;
+                    }
+                } catch {
+                    // ignore invalid candidate
+                }
+            }
+        }
+
+        throw new Error(`Could not find Claude CLI '${normalizedCli}' in PATH. Please set the full path in settings.`);
+    }
+
+    private parseLineList(value: string | null | undefined): string[] {
+        return String(value || '')
+            .replace(/\r\n?/g, '\n')
+            .split('\n')
+            .map((line) => line.trim())
+            .filter((line) => !!line && !line.startsWith('#'));
+    }
+
+    private parseRegexRule(pattern: string): RegExp | null {
+        const match = pattern.match(/^\/(.+)\/([gimsuy]*)$/);
+        if (!match) return null;
+
+        try {
+            const flags = (match[2] || '').replace(/g/g, '');
+            return new RegExp(match[1], flags);
+        } catch {
+            return null;
+        }
+    }
+
+    private extractCommandTextFromToolInput(toolName: string, input: unknown): string {
+        const lowerName = String(toolName || '').toLowerCase();
+        const isShellLikeTool = (
+            lowerName.includes('bash') ||
+            lowerName.includes('shell') ||
+            lowerName.includes('terminal') ||
+            lowerName.includes('command') ||
+            lowerName.includes('cmd')
+        );
+        if (!isShellLikeTool) return '';
+
+        if (typeof input === 'string') {
+            return input.trim();
+        }
+        if (!input || typeof input !== 'object') {
+            return '';
+        }
+
+        const anyInput = input as Record<string, unknown>;
+        const directKeys = ['command', 'cmd', 'script', 'input', 'text'];
+        for (const key of directKeys) {
+            const value = anyInput[key];
+            if (typeof value === 'string' && value.trim()) {
+                return value.trim();
+            }
+        }
+
+        if (Array.isArray(anyInput.commands)) {
+            const joined = (anyInput.commands as unknown[])
+                .filter((entry) => typeof entry === 'string')
+                .map((entry) => String(entry).trim())
+                .filter(Boolean)
+                .join(' && ');
+            return joined.trim();
+        }
+
+        return '';
+    }
+
+    private getBlockedCommandMatch(toolName: string, input: unknown): string | null {
+        const command = this.extractCommandTextFromToolInput(toolName, input);
+        if (!command) return null;
+
+        const blockRules = [
+            ...this.parseLineList(this.settings.blockedCommandsWindows),
+            ...this.parseLineList(this.settings.blockedCommandsUnix),
+        ];
+        if (blockRules.length === 0) return null;
+
+        const commandLower = command.toLowerCase();
+        for (const rule of blockRules) {
+            const regex = this.parseRegexRule(rule);
+            if (regex) {
+                if (regex.test(command)) {
+                    return rule;
+                }
+                continue;
+            }
+
+            if (commandLower.includes(rule.toLowerCase())) {
+                return rule;
+            }
+        }
+
+        return null;
+    }
+
+    private handleToolUseBlock(block: any): void {
+        const name = String(block?.name || '');
+        const input = block?.input;
+        const blockedBy = this.getBlockedCommandMatch(name, input);
+        if (blockedBy) {
+            throw new Error(`命令黑名单已拦截潜在危险命令（规则：${blockedBy}）。`);
+        }
+
+        this.onToolUseCallback?.({
+            type: 'tool_use',
+            id: String(block?.id || ''),
+            name,
+            input: this.stringifyUnknown(input),
+        });
     }
 
     private ensureGitBashEnvironment(): string | null {
@@ -963,18 +1255,6 @@ export class ClaudeService {
         this.onStreamEndCallback = null;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

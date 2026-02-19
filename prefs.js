@@ -8,6 +8,8 @@ pref("extensions.zotero.zoclau.workingDirectory", "");
 pref("extensions.zotero.zoclau.permissionMode", "yolo");
 pref("extensions.zotero.zoclau.userName", "");
 pref("extensions.zotero.zoclau.enableAutoScroll", true);
-pref("extensions.zotero.zoclau.enableBlocklist", true);
+pref("extensions.zotero.zoclau.loadUserClaudeSettings", true);
+pref("extensions.zotero.zoclau.blockedCommandsWindows", "del /s /q\nrd /s /q\nrmdir /s /q\nformat\ndiskpart\nRemove-Item -Recurse -Force");
+pref("extensions.zotero.zoclau.blockedCommandsUnix", "rm -rf\nchmod 777\nchmod -R 777");
 pref("extensions.zotero.zoclau.conversations", "[]");
 
