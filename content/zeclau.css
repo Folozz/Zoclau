@@ -1749,7 +1749,7 @@
   font-weight: 600 !important;
 }
 /* Final tweak v24: swap active/selected colors in @ mention list */
-/* ��ǰ����Ŀ�꣺������ */
+/* active item style */
 .zeclau-mention-dropdown .zeclau-mention-item.is-active {
   background: #c8d9f5 !important;
   color: #3a6aab !important;
@@ -1757,7 +1757,7 @@
   font-weight: 500 !important;
 }
 
-/* ���������ģ����� */
+/* selected item style */
 .zeclau-mention-dropdown .zeclau-mention-item.is-selected,
 .zeclau-mention-dropdown .zeclau-mention-item.is-selected:hover {
   background: #e9f1ff !important;
@@ -1766,7 +1766,7 @@
   font-weight: 500 !important;
 }
 
-/* ���������� + ��ǰ����Ŀ�꣺����ɫ */
+/* selected + active item style */
 .zeclau-mention-dropdown .zeclau-mention-item.is-selected.is-active {
   background: #c8d9f5 !important;
   color: #3a6aab !important;
@@ -1807,9 +1807,8 @@
 }
 
 #zeclau-itempane-root > .zeclau-panel.zeclau-panel-embedded {
-  display: grid !important;
-  grid-template-rows: minmax(0, 1fr) auto !important;
-  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
   height: 100% !important;
   max-height: 100% !important;
   min-height: 0 !important;
@@ -1817,8 +1816,6 @@
 }
 
 #zeclau-itempane-root > .zeclau-panel.zeclau-panel-embedded > .zeclau-messages-wrapper {
-  height: auto !important;
-  max-height: 100% !important;
   min-height: 0 !important;
   overflow: hidden !important;
 }
@@ -1836,11 +1833,11 @@
   min-height: 0 !important;
   flex: 0 0 auto !important;
 }
-/* Final tweak v26: fixed plugin panel height */
+/* Final tweak v26: plugin panel fills parent */
 #zeclau-itempane-root,
 #zeclau-itempane-root > .zeclau-panel.zeclau-panel-embedded {
-  height: 640px !important;
-  min-height: 640px !important;
-  max-height: 640px !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
 }
 

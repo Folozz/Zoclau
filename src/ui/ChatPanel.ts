@@ -38,6 +38,9 @@ const DEFAULT_MODELS: { value: ClaudeModel; label: string }[] = [
     { value: 'opus', label: 'Opus（强大）' },
 ];
 
+const BASE_MESSAGES_HEIGHT_PX = 480;
+const MAX_INPUT_TEXTAREA_HEIGHT_PX = 220;
+
 export class ChatPanel {
     private doc: Document;
     private container: HTMLElement;
@@ -48,6 +51,7 @@ export class ChatPanel {
     // DOM
     private messagesWrapper: HTMLElement | null = null;
     private messagesContainer: HTMLElement | null = null;
+    private inputArea: HTMLElement | null = null;
     private inputTextarea: HTMLTextAreaElement | null = null;
     private sendButton: HTMLButtonElement | null = null;
     private stopButton: HTMLButtonElement | null = null;
@@ -67,6 +71,7 @@ export class ChatPanel {
     private scrollBottomBtn: HTMLButtonElement | null = null;
     private mentionDropdown: HTMLElement | null = null;
     private docClickHandler: ((event: MouseEvent) => void) | null = null;
+    private inputAreaResizeObserver: ResizeObserver | null = null;
 
     // State
     private currentStreamingEl: HTMLElement | null = null;
@@ -82,6 +87,7 @@ export class ChatPanel {
     private selectedLocalFiles: LocalFileEntry[] = [];
     private selectedPaperContexts: ContextEntry[] = [];
     private historyMenuRowHeight = 44;
+    private inputAreaBaseHeight = 0;
     private historyActiveIndex = -1;
     private slashMode = false;
     private skillCache: { name: string; fullName: string }[] = [];
@@ -106,8 +112,9 @@ export class ChatPanel {
     build(): void {
         this.container.innerHTML = '';
         this.container.className = 'zeclau-panel zeclau-panel-embedded';
-        this.container.style.display = 'grid';
-        this.container.style.gridTemplateRows = 'minmax(0, 1fr) minmax(0, auto)';
+        this.container.style.display = 'flex';
+        this.container.style.flexDirection = 'column';
+        this.container.style.flex = '1 1 auto';
         this.container.style.height = '100%';
         this.container.style.maxHeight = '100%';
         this.container.style.minHeight = '0';
@@ -116,9 +123,12 @@ export class ChatPanel {
 
         this.messagesWrapper = this.doc.createElement('div');
         this.messagesWrapper.className = 'zeclau-messages-wrapper';
+        const baseMessagesHeight = `${BASE_MESSAGES_HEIGHT_PX}px`;
+        this.messagesWrapper.style.setProperty('height', baseMessagesHeight, 'important');
+        this.messagesWrapper.style.setProperty('min-height', baseMessagesHeight, 'important');
+        this.messagesWrapper.style.setProperty('max-height', baseMessagesHeight, 'important');
+        this.messagesWrapper.style.setProperty('flex', `0 0 ${baseMessagesHeight}`, 'important');
         this.messagesWrapper.style.minHeight = '0';
-        this.messagesWrapper.style.height = '100%';
-        this.messagesWrapper.style.maxHeight = '100%';
         this.messagesWrapper.style.overflow = 'hidden';
 
         this.messagesContainer = this.doc.createElement('div');
@@ -134,8 +144,11 @@ export class ChatPanel {
         this.scrollRail = this.buildScrollRail();
         this.messagesWrapper.appendChild(this.scrollRail);
 
+        const inputArea = this.buildInputArea();
+        this.inputArea = inputArea;
+
         this.container.appendChild(this.messagesWrapper);
-        this.container.appendChild(this.buildInputArea());
+        this.container.appendChild(inputArea);
 
         if (!this.callbacksWired) {
             this.wireCallbacks();
@@ -146,6 +159,9 @@ export class ChatPanel {
         this.renderConversationOptions();
         this.renderCurrentItemChip();
         this.renderAllMessages();
+        this.resizeInputTextarea();
+        this.attachInputAreaResizeObserver();
+        this.syncFixedPanelLayout(true);
         this.updateStatus('就绪');
         this.updateScrollButtonsState();
     }
@@ -293,6 +309,7 @@ export class ChatPanel {
     private buildInputArea(): HTMLElement {
         const inputArea = this.doc.createElement('div');
         inputArea.className = 'zeclau-input-area';
+        this.inputArea = inputArea;
 
         const toolbar = this.doc.createElement('div');
         toolbar.className = 'zeclau-composer-toolbar';
@@ -405,10 +422,7 @@ export class ChatPanel {
             }
         });
         this.inputTextarea.addEventListener('input', () => {
-            if (this.inputTextarea) {
-                this.inputTextarea.style.height = 'auto';
-                this.inputTextarea.style.height = `${Math.min(this.inputTextarea.scrollHeight, 220)}px`;
-            }
+            this.resizeInputTextarea();
             this.updateMentionDropdown();
             this.updateSlashCommandDropdown();
         });
@@ -492,6 +506,52 @@ export class ChatPanel {
         this.renderSelectedPaperContexts();
         this.renderSelectedLocalFiles();
         return inputArea;
+    }
+
+    private resizeInputTextarea(): void {
+        if (!this.inputTextarea) return;
+        this.inputTextarea.style.height = 'auto';
+        this.inputTextarea.style.height = `${Math.min(this.inputTextarea.scrollHeight, MAX_INPUT_TEXTAREA_HEIGHT_PX)}px`;
+        this.syncFixedPanelLayout();
+    }
+
+    private attachInputAreaResizeObserver(): void {
+        if (this.inputAreaResizeObserver) {
+            this.inputAreaResizeObserver.disconnect();
+            this.inputAreaResizeObserver = null;
+        }
+
+        const ResizeObserverCtor = this.doc.defaultView?.ResizeObserver;
+        if (!ResizeObserverCtor || !this.inputArea) {
+            return;
+        }
+
+        this.inputAreaResizeObserver = new ResizeObserverCtor(() => {
+            this.syncFixedPanelLayout();
+        });
+        this.inputAreaResizeObserver.observe(this.inputArea);
+    }
+
+    private syncFixedPanelLayout(resetBase = false): void {
+        if (!this.messagesWrapper || !this.inputArea) return;
+
+        const inputHeight = Math.round(this.inputArea.getBoundingClientRect().height);
+        if (!Number.isFinite(inputHeight) || inputHeight <= 0) {
+            return;
+        }
+
+        if (resetBase || this.inputAreaBaseHeight <= 0) {
+            this.inputAreaBaseHeight = inputHeight;
+        }
+
+        const inputDelta = Math.max(0, inputHeight - this.inputAreaBaseHeight);
+        const messagesHeight = Math.max(0, BASE_MESSAGES_HEIGHT_PX - inputDelta);
+        const px = `${messagesHeight}px`;
+
+        this.messagesWrapper.style.setProperty('height', px, 'important');
+        this.messagesWrapper.style.setProperty('min-height', px, 'important');
+        this.messagesWrapper.style.setProperty('max-height', px, 'important');
+        this.messagesWrapper.style.setProperty('flex', `0 0 ${px}`, 'important');
     }
 
     private ensureHistoryMenu(): void {
@@ -1002,21 +1062,11 @@ export class ChatPanel {
         });
 
         this.service.onStreamStart(() => {
-            this.setInputEnabled(false);
-            this.updateStatus('思考中...');
-            this.setLiveState('thinking');
-            if (this.stopButton) {
-                this.stopButton.style.display = 'inline-block';
-            }
+            this.setComposerThinkingState();
         });
 
         this.service.onStreamEnd(() => {
-            this.setInputEnabled(true);
-            this.updateStatus('就绪');
-            this.setLiveState('ready');
-            if (this.stopButton) {
-                this.stopButton.style.display = 'none';
-            }
+            this.setComposerInputState();
         });
     }
 
@@ -1029,7 +1079,7 @@ export class ChatPanel {
         // Handle /history command (before busy check)
         if (this.isHistoryCommandInput(text)) {
             this.inputTextarea.value = '';
-            this.inputTextarea.style.height = 'auto';
+            this.resizeInputTextarea();
             this.renderConversationOptions();
             this.showHistoryMenu();
             return;
@@ -1042,7 +1092,7 @@ export class ChatPanel {
         this.hideHistoryMenu();
 
         this.inputTextarea.value = '';
-        this.inputTextarea.style.height = 'auto';
+        this.resizeInputTextarea();
 
         const convId = this.ensureActiveConversation();
         const activeBeforeSend = this.conversationManager.getActive();
@@ -1157,8 +1207,7 @@ export class ChatPanel {
         }
 
         this.inputTextarea.value = text;
-        this.inputTextarea.style.height = 'auto';
-        this.inputTextarea.style.height = `${Math.min(this.inputTextarea.scrollHeight, 220)}px`;
+        this.resizeInputTextarea();
         this.followNewest = true;
         void this.handleSend();
     }
@@ -1183,8 +1232,7 @@ export class ChatPanel {
     private applyQuickPrompt(prompt: string): void {
         if (!this.inputTextarea) return;
         this.inputTextarea.value = prompt;
-        this.inputTextarea.style.height = 'auto';
-        this.inputTextarea.style.height = `${Math.min(this.inputTextarea.scrollHeight, 220)}px`;
+        this.resizeInputTextarea();
         this.inputTextarea.focus();
     }
 
@@ -2033,8 +2081,7 @@ export class ChatPanel {
                 const cursor = start + insertion.length;
                 this.inputTextarea.setSelectionRange(cursor, cursor);
                 this.inputTextarea.focus();
-                this.inputTextarea.style.height = 'auto';
-                this.inputTextarea.style.height = `${Math.min(this.inputTextarea.scrollHeight, 220)}px`;
+                this.resizeInputTextarea();
             }
             this.hideMentionDropdown();
             return;
@@ -2047,8 +2094,7 @@ export class ChatPanel {
             this.inputTextarea.value = (value.slice(0, start) + value.slice(end)).replace(/\s{2,}/g, ' ');
             this.inputTextarea.setSelectionRange(start, start);
             this.inputTextarea.focus();
-            this.inputTextarea.style.height = 'auto';
-            this.inputTextarea.style.height = `${Math.min(this.inputTextarea.scrollHeight, 220)}px`;
+            this.resizeInputTextarea();
         }
 
         this.addSelectedPaperContext(ctx);
@@ -2079,8 +2125,7 @@ export class ChatPanel {
         const cursor = start + insertion.length;
         this.inputTextarea.setSelectionRange(cursor, cursor);
         this.inputTextarea.focus();
-        this.inputTextarea.style.height = 'auto';
-        this.inputTextarea.style.height = `${Math.min(this.inputTextarea.scrollHeight, 220)}px`;
+        this.resizeInputTextarea();
     }
 
     private triggerMentionPicker(): void {
@@ -2417,6 +2462,56 @@ export class ChatPanel {
         }
     }
 
+    private setComposerThinkingState(): void {
+        this.setInputEnabled(false);
+        this.updateStatus('思考中...');
+        this.setLiveState('thinking');
+        if (this.stopButton) {
+            this.stopButton.style.display = 'inline-block';
+        }
+    }
+
+    private setComposerInputState(): void {
+        this.setInputEnabled(true);
+        this.updateStatus('就绪');
+        this.setLiveState('ready');
+        if (this.stopButton) {
+            this.stopButton.style.display = 'none';
+        }
+
+        const win = this.doc.defaultView;
+        if (win?.requestAnimationFrame) {
+            win.requestAnimationFrame(() => this.focusInputTextareaWithRetry());
+            return;
+        }
+        this.focusInputTextareaWithRetry();
+    }
+
+    private focusInputTextareaWithRetry(attempt = 0): void {
+        if (!this.inputTextarea || this.inputTextarea.disabled || !this.inputTextarea.isConnected) {
+            return;
+        }
+
+        try {
+            this.inputTextarea.focus();
+            const caret = this.inputTextarea.value.length;
+            this.inputTextarea.setSelectionRange(caret, caret);
+        } catch {
+            // ignore focus failures and retry below
+        }
+
+        if (this.doc.activeElement === this.inputTextarea) {
+            return;
+        }
+
+        if (attempt >= 3) {
+            return;
+        }
+
+        const delay = attempt === 0 ? 0 : 40;
+        this.doc.defaultView?.setTimeout(() => this.focusInputTextareaWithRetry(attempt + 1), delay);
+    }
+
     private setLiveState(state: 'ready' | 'thinking' | 'error'): void {
         if (!this.statusDot) return;
         this.statusDot.classList.remove('zeclau-live-dot-thinking', 'zeclau-live-dot-error');
@@ -2450,10 +2545,15 @@ export class ChatPanel {
             this.doc.removeEventListener('mousedown', this.docClickHandler);
             this.docClickHandler = null;
         }
+        if (this.inputAreaResizeObserver) {
+            this.inputAreaResizeObserver.disconnect();
+            this.inputAreaResizeObserver = null;
+        }
 
         this.container.innerHTML = '';
         this.messagesWrapper = null;
         this.messagesContainer = null;
+        this.inputArea = null;
         this.inputTextarea = null;
         this.sendButton = null;
         this.stopButton = null;
@@ -2477,6 +2577,7 @@ export class ChatPanel {
         this.mentionCache = [];
         this.mentionCacheAt = 0;
         this.selectedLocalFiles = [];
+        this.inputAreaBaseHeight = 0;
     }
 }
 

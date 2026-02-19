@@ -171,6 +171,8 @@ function mountChatPanel(body: any): ChatPanel | null {
     const hostBody = body as HTMLElement;
     hostBody.style.display = 'flex';
     hostBody.style.flexDirection = 'column';
+    hostBody.style.flex = '1 1 auto';
+    hostBody.style.alignSelf = 'stretch';
     hostBody.style.alignItems = 'stretch';
     hostBody.style.justifyContent = 'stretch';
     hostBody.style.width = '100%';
@@ -182,6 +184,7 @@ function mountChatPanel(body: any): ChatPanel | null {
     hostBody.style.boxSizing = 'border-box';
     hostBody.style.margin = '0';
     hostBody.style.padding = '0';
+    hostBody.style.position = 'relative';
 
     const existing = panelByBody.get(hostBody);
     if (existing) {
@@ -192,13 +195,11 @@ function mountChatPanel(body: any): ChatPanel | null {
 
     const container = doc.createElementNS('http://www.w3.org/1999/xhtml', 'div') as HTMLElement;
     container.setAttribute('id', 'zeclau-itempane-root');
-    container.style.width = '100%';
-    container.style.minWidth = '0';
-    container.style.alignSelf = 'stretch';
-    container.style.height = '100%';
-    container.style.maxHeight = '100%';
-    container.style.minHeight = '0';
-    container.style.flex = '1 1 auto';
+    container.style.position = 'absolute';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.right = '0';
+    container.style.bottom = '0';
     container.style.overflow = 'hidden';
     container.style.boxSizing = 'border-box';
 
@@ -485,7 +486,6 @@ function registerItemPaneSection(): void {
         log(`Error registering item pane section: ${e}`);
     }
 }
-
 
 
 
