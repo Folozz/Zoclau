@@ -1,6 +1,6 @@
 # 🚀 Zoclau
 
-[🇺🇸 English](README.md) • [🇨🇳 中文文档](README.zh-CN.md)
+[English](README.md) • [中文文档](README.zh-CN.md)
 
 Zoclau 是一个 Zotero 7 插件，将 Claude Code 嵌入到 Zotero 侧栏，方便你在文献管理场景中直接进行对话、分析和本地上下文协作。
 

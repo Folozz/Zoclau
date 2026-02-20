@@ -1,6 +1,6 @@
 # 🚀 Zoclau
 
-[🇺🇸 English](README.md) • [🇨🇳 中文文档](README.zh-CN.md)
+[English](README.md) • [中文文档](README.zh-CN.md)
 
 Zoclau is a Zotero 7 plugin that embeds Claude Code directly into the Zotero sidebar, empowering you to chat, analyze, and work seamlessly with local context during your literature research.
 
