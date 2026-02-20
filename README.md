@@ -16,14 +16,11 @@ Zoclau is a Zotero 7 plugin that embeds Claude Code directly into the Zotero sid
 - ⚡ **Streaming Responses**: Real-time generation of Claude's answers.
 - 📜 **Conversation History**: Easily manage and switch between past conversations.
 - 📂 **Local Context Picker**: Multi-folder selection, precise count badges, and list management.
-- 🔗 **Item/Folder Mentions**: Quickly reference items and folders to provide context.
+- 🔗 **Item/Folder Mentions**: Quickly reference items as context.
 - 🛡️ **Configurable Permission Modes**:
   - `yolo` (no prompt, execute immediately)
   - `normal` (safer, requires confirmation)
   - `plan` (exploration and planning first)
-- 🚫 **Command Blocklist**: Configurable restrictions for Windows and Unix/Git Bash.
-- 📜 **Auto-scroll**: Toggleable option for streaming output.
-- ⚙️ **Custom Settings**: Optional loading of your global `~/.claude/settings.json`.
 
 ---
 
@@ -38,7 +35,7 @@ Zoclau is a Zotero 7 plugin that embeds Claude Code directly into the Zotero sid
 ## 📖 Usage
 
 - **Basic Chat**: Interact directly with Claude Code in the right-side chat panel.
-- **Manage History**: Type `history` to view, switch, and manage your past chat sessions.
+- **Manage History**: Type `/history` to view, switch, and manage your past chat sessions.
 - **Context Mentions**: Use `@` to reference specific Zotero items or papers, injecting highly relevant context into your conversation.
 - **Skills & Tools**: Leverage Claude Code's capabilities to explore your local data and execute complex tools.
 
@@ -78,36 +75,6 @@ node pack-xpi.cjs
 - `zoclau.xpi`: The packaged, installable plugin
 
 ---
-
-## ⚙️ Configuration
-
-Open Zotero settings and navigate to the **Zoclau** tab. Current configurable options include:
-
-- **Claude CLI path**
-- **Working directory**
-- **Permission mode**
-- **Auto-scroll during streaming**
-- **Load user Claude settings**
-- **Blocked commands** (Separate for Windows & Unix-Git Bash)
-
-*(Note: All settings are auto-saved upon modification)*
-
----
-
-## ⚠️ Security Notes
-
-Zoclau utilizes the powerful tooling capabilities of Claude Code. Depending on your active permission mode, the model may execute tool actions, including shell commands and file operations.  
-**Please review and strictly maintain the command blocklists according to your specific environment.**
-
----
-
-## 🛠️ Development
-
-```bash
-npm run dev       # Watch mode: auto-rebuild on file change
-npm run build     # Production build
-npm run typecheck # TypeScript static checking
-```
 
 **Key Files & Architecture**:
 - `src/index.ts` - Plugin entry point and Zotero lifecycle integration
