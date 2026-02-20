@@ -4,6 +4,8 @@
 
 Zoclau is a Zotero 7 plugin that embeds Claude Code into the Zotero sidebar, so you can chat, analyze, and work with local context during literature research.
 
+![Zoclau Screenshot](imgs/1.png)
+
 ## Features
 
 - Embedded chat panel in Zotero item pane
@@ -24,6 +26,19 @@ Zoclau is a Zotero 7 plugin that embeds Claude Code into the Zotero sidebar, so 
 - Zotero 7
 - Claude Code CLI installed and available
 - Windows users: Git Bash recommended (or set `CLAUDE_CODE_GIT_BASH_PATH`)
+
+## Usage
+
+- **Basic Chat**: Interact directly with Claude Code in the chat panel.
+- **History Command**: Type `history` to view and manage your past conversation history.
+- **Mentions**: Use `@` to reference specific Zotero items or papers to provide local context.
+- **Skills & Tools**: Leverage Claude Code's capabilities to explore your local data and run tools.
+
+![History](imgs/history.png)
+
+![Cite Papers](imgs/引用论文.png)
+
+![Skills](imgs/skills.png)
 
 ## Install
 

@@ -4,6 +4,8 @@
 
 Zoclau 是一个 Zotero 7 插件，将 Claude Code 嵌入到 Zotero 侧栏，方便你在文献管理场景中直接进行对话、分析和本地上下文协作。
 
+![Zoclau Screenshot](imgs/1.png)
+
 ## 功能特性
 
 - Zotero 条目面板内嵌聊天界面
@@ -24,6 +26,19 @@ Zoclau 是一个 Zotero 7 插件，将 Claude Code 嵌入到 Zotero 侧栏，方
 - Zotero 7
 - 已安装 Claude Code CLI，且可被系统调用
 - Windows 建议安装 Git Bash（或设置 `CLAUDE_CODE_GIT_BASH_PATH`）
+
+## 使用说明
+
+- **基础对话**：在 Zotero 侧边栏的聊天框中直接与 Claude Code 交流。
+- **历史记录**：输入 `history` 指令可查看、切换和管理历史会话。
+- **上下文引用**：输入 `@` 可以快速引用 Zotero 中的条目或文献内容（如引用的论文），为对话提供背景信息。
+- **技能工具**：支持本地上下文抓取等高级功能。
+
+![History](imgs/history.png)
+
+![Cite Papers](imgs/引用论文.png)
+
+![Skills](imgs/skills.png)
 
 ## 安装方式
 
