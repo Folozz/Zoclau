@@ -1,103 +1,121 @@
-# Zoclau
+# 🚀 Zoclau
 
-[English](README.md)
+[🇺🇸 English](README.md) • [🇨🇳 中文文档](README.zh-CN.md)
 
 Zoclau 是一个 Zotero 7 插件，将 Claude Code 嵌入到 Zotero 侧栏，方便你在文献管理场景中直接进行对话、分析和本地上下文协作。
 
-![Zoclau Screenshot](imgs/1.png)
+<div align="center">
+  <img src="imgs/1.png" alt="Zoclau Screenshot" width="800" />
+</div>
 
-## 功能特性
+---
 
-- Zotero 条目面板内嵌聊天界面
-- 流式输出回复
-- 历史会话管理
-- 本地文件夹上下文选择（支持多文件夹、角标计数、列表管理）
-- 条目/文件夹上下文引用
-- 可配置权限模式：
-  - `yolo`（不提示）
-  - `normal`（更安全，偏确认）
-  - `plan`（先探索再执行）
-- Windows 与 Unix/Git Bash 分别可配的命令黑名单
-- 流式输出自动滚动开关
-- 可选加载 `~/.claude/settings.json`
+## ✨ 功能特性
 
-## 环境要求
+- 💬 **Zotero 内嵌聊天**：在条目面板直接进行对话，支持流式输出回复。
+- 📜 **历史会话管理**：轻松查看、切换和管理之前的对话。
+- 📂 **本地上下文选择**：支持多文件夹选择、角标计数和列表管理。
+- 🔗 **上下文快捷引用**：通过 `@` 快速引用文献条目或文件夹作为上下文。
+- 🛡️ **灵活的权限模式**：
+  - `yolo`（无提示直接执行）
+  - `normal`（安全优先，需确认）
+  - `plan`（先探索分析，再执行操作）
+- 🚫 **命令黑名单**：支持为 Windows 与 Unix/Git Bash 分别配置阻止的命令。
+- ⚙️ **丰富设置**：支持开启流式自动滚动、可选加载系统 `~/.claude/settings.json`。
 
-- Zotero 7
-- 已安装 Claude Code CLI，且可被系统调用
-- Windows 建议安装 Git Bash（或设置 `CLAUDE_CODE_GIT_BASH_PATH`）
+---
 
-## 使用说明
+## 💻 环境要求
 
-- **基础对话**：在 Zotero 侧边栏的聊天框中直接与 Claude Code 交流。
-- **历史记录**：输入 `history` 指令可查看、切换和管理历史会话。
-- **上下文引用**：输入 `@` 可以快速引用 Zotero 中的条目或文献内容（如引用的论文），为对话提供背景信息。
-- **技能工具**：支持本地上下文抓取等高级功能。
+- **Zotero 7**
+- 已全局安装 **Claude Code CLI**，且可通过终端调用
+- **Windows 用户**：强烈建议安装 **Git Bash**（如果未在系统 Path 中，可在插件设置里配置 `CLAUDE_CODE_GIT_BASH_PATH`）
 
-![History](imgs/history.png)
+---
 
-![Cite Papers](imgs/引用论文.png)
+## 📖 使用说明
 
-![Skills](imgs/skills.png)
+- **基础对话**：在 Zotero 右侧边栏的聊天框中直接与 Claude 交流，处理当前文献。
+- **历史记录**：在输入框键入 `history`，即可查看并切换历史会话。
+- **上下文引用**：键入 `@` 呼出菜单，快速引用 Zotero 中的特定条目或相关文献，为对话提供极强的背景关联。
+- **技能工具**：结合 Claude Code 强大的工具链，进行本地阅读、分析总结等高级操作。
 
-## 安装方式
+### 界面展示
 
-### 方式 A：从 Release 安装（推荐）
+| 📜 历史记录 | 📎 引用文献 / 条目 | 🛠️ 技能与工具 |
+| :---: | :---: | :---: |
+| <img src="imgs/history.png" width="260" alt="History" /> | <img src="imgs/引用论文.png" width="260" alt="Cite Papers" /> | <img src="imgs/skills.png" width="260" alt="Skills" /> |
 
-1. 从 GitHub 最新 Release 下载 `zoclau.xpi`。
-2. Zotero 中打开 `工具` -> `插件`。
-3. 点击右上角齿轮 -> `Install Plugin From File...`。
-4. 选择 `zoclau.xpi`。
+---
+
+## 📦 安装方式
+
+### 方式 A：从 Release 安装（⭐ 推荐）
+
+1. 前往 GitHub 的 [Releases 页面](https://github.com/Folozz/Zoclau/releases) 下载最新版的 `zoclau.xpi`。
+2. 打开 Zotero，点击菜单栏：`工具` -> `插件`。
+3. 点击右上角齿轮图标 ⚙️ -> 选择 `Install Plugin From File...`。
+4. 选择下载好的 `zoclau.xpi` 并确认。
 5. 按提示重启 Zotero。
 
 ### 方式 B：从源码构建
 
 ```bash
+# 1. 安装依赖
 npm install
+
+# 2. 构建项目
 npm run build
+
+# 3. 打包为 xpi 文件
 node pack-xpi.cjs
 ```
 
-构建产物：
+**构建产物**：
+- `build/addon/`：未打包的插件目录
+- `zoclau.xpi`：可直接安装的 Zotero 插件包
 
-- `build/addon/`（未打包插件目录）
-- `zoclau.xpi`（可安装包）
+---
 
-## 设置说明
+## ⚙️ 设置说明
 
-打开 Zotero 设置中的 **Zoclau**，当前支持：
+打开 Zotero 设置，在左侧找到 **Zoclau** 选项卡。当前支持自定义以下选项：
 
-- Claude CLI 路径
-- 工作目录
-- 权限模式
-- 流式输出时自动滚动
-- 加载用户 Claude 设置
-- 阻止命令（Windows / Unix-Git Bash）
+- **Claude CLI 路径**（如果未在环境变量中）
+- **工作目录**
+- **权限模式**
+- **流式输出时自动滚动**
+- **加载用户 Claude 设置**
+- **阻止命令**（Windows / Unix-Git Bash 分开配置）
 
-所有设置均自动保存。
+*(提示：所有设置均会在修改后自动保存)*
 
-## 安全说明
+---
 
-Zoclau 使用 Claude Code 的工具能力。根据权限模式不同，模型可能执行工具动作（包括命令行/文件操作）。  
-请根据你的环境严格维护命令黑名单。
+## ⚠️ 安全说明
 
-## 开发命令
+Zoclau 利用了 Claude Code 强大的本地工具能力。根据您配置的权限模式，模型可能会在您的电脑上执行命令行或文件操作。
+**请务必根据您的使用环境，严格审查并维护工具命令黑名单。**
+
+---
+
+## 🛠️ 开发说明
 
 ```bash
-npm run dev       # 监听构建
-npm run build     # 生产构建
+npm run dev       # 监听文件变化并增量构建 (watch 模式)
+npm run build     # 生产环境完整构建
 npm run typecheck # TypeScript 类型检查
 ```
 
-核心文件：
+**核心文件结构**：
+- `src/index.ts`：插件入口与 Zotero 生命周期整合
+- `src/service/ClaudeService.ts`：处理 Claude CLI 进程与流式输出
+- `src/ui/ChatPanel.ts`：聊天 UI 渲染与交互逻辑
+- `content/preferences.xhtml` & `content/preferences.js`：Zotero 设置界面及自动保存逻辑
+- `esbuild.config.mjs`：打包配置与静态资源处理
 
-- `src/index.ts`：插件入口与生命周期整合
-- `src/service/ClaudeService.ts`：Claude CLI 进程与流式处理
-- `src/ui/ChatPanel.ts`：聊天 UI 与交互
-- `content/preferences.xhtml`：Zotero 设置界面
-- `content/preferences.js`：设置逻辑与自动保存
-- `esbuild.config.mjs`：打包与静态资源拷贝
+---
 
-## 许可证
+## 📄 许可证
 
-MIT
+[MIT License](LICENSE)

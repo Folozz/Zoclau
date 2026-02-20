@@ -1,103 +1,123 @@
-# Zoclau
+# 🚀 Zoclau
 
-[中文文档](README.zh-CN.md)
+[🇺🇸 English](README.md) • [🇨🇳 中文文档](README.zh-CN.md)
 
-Zoclau is a Zotero 7 plugin that embeds Claude Code into the Zotero sidebar, so you can chat, analyze, and work with local context during literature research.
+Zoclau is a Zotero 7 plugin that embeds Claude Code directly into the Zotero sidebar, empowering you to chat, analyze, and work seamlessly with local context during your literature research.
 
-![Zoclau Screenshot](imgs/1.png)
+<div align="center">
+  <img src="imgs/1.png" alt="Zoclau Screenshot" width="800" />
+</div>
 
-## Features
+---
 
-- Embedded chat panel in Zotero item pane
-- Streaming responses
-- Conversation history management
-- Local folder context picker (multi-folder, count badge, list management)
-- Item/folder context referencing
-- Configurable permission mode:
-  - `yolo` (no prompt)
-  - `normal` (safer, confirmation-oriented)
-  - `plan` (exploration first)
-- Command blocklist for Windows and Unix/Git Bash
-- Auto-scroll toggle for streaming output
-- Optional loading of `~/.claude/settings.json`
+## ✨ Features
 
-## Requirements
+- 💬 **Embedded Chat Panel**: Chat directly within the Zotero item pane.
+- ⚡ **Streaming Responses**: Real-time generation of Claude's answers.
+- 📜 **Conversation History**: Easily manage and switch between past conversations.
+- 📂 **Local Context Picker**: Multi-folder selection, precise count badges, and list management.
+- 🔗 **Item/Folder Mentions**: Quickly reference items and folders to provide context.
+- 🛡️ **Configurable Permission Modes**:
+  - `yolo` (no prompt, execute immediately)
+  - `normal` (safer, requires confirmation)
+  - `plan` (exploration and planning first)
+- 🚫 **Command Blocklist**: Configurable restrictions for Windows and Unix/Git Bash.
+- 📜 **Auto-scroll**: Toggleable option for streaming output.
+- ⚙️ **Custom Settings**: Optional loading of your global `~/.claude/settings.json`.
 
-- Zotero 7
-- Claude Code CLI installed and available
-- Windows users: Git Bash recommended (or set `CLAUDE_CODE_GIT_BASH_PATH`)
+---
 
-## Usage
+## 💻 Requirements
 
-- **Basic Chat**: Interact directly with Claude Code in the chat panel.
-- **History Command**: Type `history` to view and manage your past conversation history.
-- **Mentions**: Use `@` to reference specific Zotero items or papers to provide local context.
-- **Skills & Tools**: Leverage Claude Code's capabilities to explore your local data and run tools.
+- **Zotero 7**
+- **Claude Code CLI** installed and available in your system path
+- **Windows users**: Git Bash is highly recommended (or define `CLAUDE_CODE_GIT_BASH_PATH` in settings)
 
-![History](imgs/history.png)
+---
 
-![Cite Papers](imgs/引用论文.png)
+## 📖 Usage
 
-![Skills](imgs/skills.png)
+- **Basic Chat**: Interact directly with Claude Code in the right-side chat panel.
+- **Manage History**: Type `history` to view, switch, and manage your past chat sessions.
+- **Context Mentions**: Use `@` to reference specific Zotero items or papers, injecting highly relevant context into your conversation.
+- **Skills & Tools**: Leverage Claude Code's capabilities to explore your local data and execute complex tools.
 
-## Install
+### Interface
 
-### Option A: Install from Release (recommended)
+| 📜 History Command | 📎 Cite Papers / Items | 🛠️ Skills & Tools |
+| :---: | :---: | :---: |
+| <img src="imgs/history.png" width="260" alt="History" /> | <img src="imgs/引用论文.png" width="260" alt="Cite Papers" /> | <img src="imgs/skills.png" width="260" alt="Skills" /> |
 
-1. Download `zoclau.xpi` from the latest GitHub Release.
-2. In Zotero: `Tools` -> `Plugins`.
-3. Click the gear icon -> `Install Plugin From File...`.
-4. Select `zoclau.xpi`.
-5. Restart Zotero if prompted.
+---
 
-### Option B: Build from source
+## 📦 Install
+
+### Option A: Install from Release (⭐ Recommended)
+
+1. Download the latest `zoclau.xpi` from the [GitHub Releases](https://github.com/Folozz/Zoclau/releases) page.
+2. In Zotero, go to `Tools` -> `Plugins`.
+3. Click the gear icon ⚙️ in the top right -> select `Install Plugin From File...`.
+4. Select the downloaded `zoclau.xpi`.
+5. Restart Zotero when prompted.
+
+### Option B: Build from Source
 
 ```bash
+# 1. Install dependencies
 npm install
+
+# 2. Build the project
 npm run build
+
+# 3. Pack into an .xpi file
 node pack-xpi.cjs
 ```
 
-Generated artifacts:
+**Build Artifacts**:
+- `build/addon/`: The unpacked Zotero add-on folder
+- `zoclau.xpi`: The packaged, installable plugin
 
-- `build/addon/` (unpacked addon)
-- `zoclau.xpi` (installable package)
+---
 
-## Configuration
+## ⚙️ Configuration
 
-Open Zotero settings and locate **Zoclau**. Current options include:
+Open Zotero settings and navigate to the **Zoclau** tab. Current configurable options include:
 
-- Claude CLI path
-- Working directory
-- Permission mode
-- Auto-scroll during streaming
-- Load user Claude settings
-- Blocked commands (Windows / Unix-Git Bash)
+- **Claude CLI path**
+- **Working directory**
+- **Permission mode**
+- **Auto-scroll during streaming**
+- **Load user Claude settings**
+- **Blocked commands** (Separate for Windows & Unix-Git Bash)
 
-All settings are auto-saved.
+*(Note: All settings are auto-saved upon modification)*
 
-## Security Notes
+---
 
-Zoclau uses Claude Code tooling capabilities. Depending on permission mode, model output may run tool actions (including shell/file operations).  
-Review and keep blocklists strict for your environment.
+## ⚠️ Security Notes
 
-## Development
+Zoclau utilizes the powerful tooling capabilities of Claude Code. Depending on your active permission mode, the model may execute tool actions, including shell commands and file operations.  
+**Please review and strictly maintain the command blocklists according to your specific environment.**
+
+---
+
+## 🛠️ Development
 
 ```bash
-npm run dev       # watch mode
-npm run build     # production build
-npm run typecheck # TypeScript check
+npm run dev       # Watch mode: auto-rebuild on file change
+npm run build     # Production build
+npm run typecheck # TypeScript static checking
 ```
 
-Key files:
+**Key Files & Architecture**:
+- `src/index.ts` - Plugin entry point and Zotero lifecycle integration
+- `src/service/ClaudeService.ts` - Handles the Claude CLI process and streaming
+- `src/ui/ChatPanel.ts` - Chat interface UI and interactions
+- `content/preferences.xhtml` & `content/preferences.js` - Zotero settings UI and auto-save logic
+- `esbuild.config.mjs` - Bundling and static file copy pipeline
 
-- `src/index.ts` - plugin entry and lifecycle integration
-- `src/service/ClaudeService.ts` - Claude CLI process/stream handling
-- `src/ui/ChatPanel.ts` - chat UI and interactions
-- `content/preferences.xhtml` - Zotero settings UI
-- `content/preferences.js` - settings behavior and auto-save logic
-- `esbuild.config.mjs` - bundle/copy pipeline
+---
 
-## License
+## 📄 License
 
-MIT
+[MIT License](LICENSE)
